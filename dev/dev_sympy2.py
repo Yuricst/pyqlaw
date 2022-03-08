@@ -6,7 +6,7 @@ import numpy as np
 import sympy as sym
 import math
 from sympy import lambdify
-
+import dill
 
 # define parameters
 rpmin, k_petro, m_petro, n_petro, r_petro, b_petro = sym.symbols("rpmin k_petro m_petro n_petro r_petro b_petro")
@@ -57,8 +57,8 @@ def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro,
     omdot_i = f/(e*h)*sym.sqrt(
        p**2*cos_ta_xx**2 + (p+r_xx)**2*(1-cos_ta_xx**2)
     )
-    omdot_o = radot*abs(sym.cos(i))
-    omdot   = om #omdot_i  #(omdot_i + b_petro*omdot_o)/(1+b_petro)
+    omdot_o = radot*sym.sqrt(sym.cos(i)**2)
+    omdot   = (omdot_i + b_petro*omdot_o)/(1+b_petro)
 
     # compute oedot
     oedot = [
@@ -162,4 +162,5 @@ us = fun_lyapunov_control(
     mu_n, f_n, oe_n, oeT_n, rpmin_n, m_petro_n, n_petro_n, r_petro_n, b_petro_n, k_petro_n, wp_n, woe_n
 )
 print(f"res: \n{us}")
+dill.dump(fun_lyapunov_control, open("fun_lyapunov_control", "wb"))
 print("Success!")
