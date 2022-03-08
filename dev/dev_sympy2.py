@@ -24,7 +24,8 @@ oeT = [aT, eT, iT, raT, omT, taT]
 
 # weights on orbital elements
 wa, we, wi, wra, wom, wta = sym.symbols("w_a w_e w_i w_Omega w_omega w_theta")
-woe = woe = [wa, we, wi, wra, wom, wta]
+woe = [wa, we, wi, wra, wom, wta]
+
 
 def angle_difference(phi1, phi2):
     return sym.acos(sym.cos(phi1 - phi2))
@@ -39,30 +40,31 @@ def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro,
     h = sym.sqrt(a*mu*(1-e**2))
 
     # -------- compute quotient Q -------- #
-    doe = [a-aT, e-eT, i-iT, 
-           sym.acos(sym.cos(ra - raT)),
-           sym.acos(sym.cos(om - omT)),
-           sym.acos(sym.cos(ta - taT)),
-          ]
+    doe = [
+        a-aT, e-eT, i-iT, 
+        sym.acos(sym.cos(ra - raT)),
+        sym.acos(sym.cos(om - omT)),
+        sym.acos(sym.cos(ta - taT)),
+    ]
 
     # compute RAdot and omdot
-    radot = p*f/(h*sym.sin(i)*(sym.sqrt(1 - e**2*sym.cos(om)**2) - e*abs(sym.sin(om))))
+    radot = p*f/(h*sym.sin(i)*(sym.sqrt(1 - e**2*sym.cos(om)**2) - e*sym.sqrt((sym.sin(om)**2))))  # FIXME
     cos_ta_xx_sqrt = sym.sqrt((1/4)*((1-e**2)/e**3)**2 + 1/27)
     ta_xx_term1 = ( (1-e**2) / (2*e**3) + cos_ta_xx_sqrt)**(1/3)
     ta_xx_term2 = (-(1-e**2) / (2*e**3) + cos_ta_xx_sqrt)**(1/3)
     cos_ta_xx = ta_xx_term1 - ta_xx_term2 - 1/e
-    r_xx = p/(1+e*cos_ta_xx)
+    r_xx = p / (1 + e*cos_ta_xx)
     omdot_i = f/(e*h)*sym.sqrt(
        p**2*cos_ta_xx**2 + (p+r_xx)**2*(1-cos_ta_xx**2)
     )
     omdot_o = radot*abs(sym.cos(i))
-    omdot   = (omdot_i + b_petro*omdot_o)/(1+b_petro)
+    omdot   = om #omdot_i  #(omdot_i + b_petro*omdot_o)/(1+b_petro)
 
     # compute oedot
     oedot = [
-        2*f*sym.sqrt(a**3 * (1+e)/(mu*(1-e))),
-        2*p*f/h,
-        p*f/(h*(sym.sqrt(1 - e**2*sym.sin(om)**2) - e*abs(sym.cos(om)))),
+        2*f*sym.sqrt(a**3 * (1+e)/(mu*(1-e))),  # adot
+        2*p*f/h,                                # edot
+        p*f/(h*(sym.sqrt(1 - e**2*sym.sin(om)**2) - e*sym.sqrt(sym.cos(om)**2))),  # idot
         radot,
         omdot,
     ]
@@ -81,20 +83,23 @@ def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro,
     r = h**2/(mu*(1+e*sym.cos(ta)))
     # let psi be column major!
     psi = [
+        # multiplies f_r
         [
             2*a**2/h*e*sym.sin(ta),
             p/h*sym.sin(ta),
             0.0,
             0.0,
             -p/(e*h)*sym.cos(ta)
-        ], 
+        ],
+        # multiplies f_theta
         [
             2*a**2/h * p/r,
-            (p+r)/h*sym.cos(ta) + r*e,
+            ((p+r)*sym.cos(ta) + r*e)/h,
             0.0,
             0.0,
-            (p+r)/(e*h)*sym.sin(ta)
-        ], 
+            (p+r)*sym.sin(ta)/(e*h)
+        ],
+        # multiplies f_h
         [
             0.0,
             0.0,
@@ -120,22 +125,21 @@ def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro,
 
     ux = -(psi[0][0]*dqdoe0 + psi[0][1]*dqdoe1 + psi[0][2]*dqdoe2 + psi[0][3]*dqdoe3 + psi[0][4]*dqdoe4)
     uy = -(psi[1][0]*dqdoe0 + psi[1][1]*dqdoe1 + psi[1][2]*dqdoe2 + psi[1][3]*dqdoe3 + psi[1][4]*dqdoe4)
-        #-(psi[1][0]*sym.diff(q, oe[0]) + psi[1][1]*sym.diff(q, oe[1]) + psi[1][2]*sym.diff(q, oe[2]) + psi[1][3]*sym.diff(q, oe[3]) + psi[1][4]*sym.diff(q, oe[4]))
     uz = -(psi[2][0]*dqdoe0 + psi[2][1]*dqdoe1 + psi[2][2]*dqdoe2 + psi[2][3]*dqdoe3 + psi[2][4]*dqdoe4)
-        #-(psi[2][0]*sym.diff(q, oe[0]) + psi[2][1]*sym.diff(q, oe[1]) + psi[2][2]*sym.diff(q, oe[2]) + psi[2][3]*sym.diff(q, oe[3]) + psi[2][4]*sym.diff(q, oe[4]))
 
     fun_lyapunov_control = lambdify(
         [mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
-        dqdoe4, 
+        [ux,uy,uz], 
         "sympy",
     )
-    return sym.diff(q, oe[4]), fun_lyapunov_control
+    return sym.diff(q, oe[2]), sym.diff(q, oe[4]), fun_lyapunov_control
 
 
 # create function
-hoge, fun_lyapunov_control = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
+hoge0, hoge1, fun_lyapunov_control = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
 
-print(f"hoge: \n{hoge}")
+print(f"sym.diff(q, oe[2]): \n{hoge0}")
+print(f"sym.diff(q, oe[4]): \n{hoge1}")
 
 # assign numerical values
 a_n, e_n, i_n, ra_n, om_n, ta_n       = 1.0,0.02, 0.2,0.3,0.4,0.5
@@ -155,6 +159,7 @@ woe_n = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
 
 # run the function as a test
 us = fun_lyapunov_control(
-    mu_n, f_n, oe_n, oeT_n, rpmin_n, m_petro_n, n_petro_n, r_petro_n, b_petro_n, k_petro_n, wp_n, woe
+    mu_n, f_n, oe_n, oeT_n, rpmin_n, m_petro_n, n_petro_n, r_petro_n, b_petro_n, k_petro_n, wp_n, woe_n
 )
 print(f"res: \n{us}")
+print("Success!")
