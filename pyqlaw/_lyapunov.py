@@ -22,7 +22,7 @@ def lyapunov_control(
     ):
     """Compute thrust angles from Lyapunov feedback control law"""
     # compute u direction
-    us = fun_lyapunov_control(
+    u_raw = fun_lyapunov_control(
         mu, f, 
         oe, 
         oeT, 
@@ -30,8 +30,11 @@ def lyapunov_control(
         r_petro, b_petro, k_petro, 
         wp, woe
     )
+    
     # compute thrust angles
-    u = f*np.array(us)/la.norm(np.array(us))
+    u_float = np.array([float(el) for el in u_raw])
+    u_float_norm = np.sqrt( u_float[0]**2 + u_float[1]**2 + u_float[2]**2 )
+    u = u_float/u_float_norm
 
     alpha = np.arctan2(u[0],u[1])
     sin_b = u[2]/la.norm(u)

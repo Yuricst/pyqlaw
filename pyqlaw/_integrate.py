@@ -6,37 +6,35 @@ import numpy as np
 
 
 def eom_gauss(t, state, p):
+    """Equations of motino for gauss"""
     # unpack parameters
     mu, f, alpha, beta = p
+    u = f*np.array([
+        np.cos(beta)*np.sin(alpha),
+        np.cos(beta)*np.cos(alpha),
+        np.sin(beta),
+    ])
+
     # unpack elements
-    a,e,i,ra,om,ta = state
-    psi = [
-        # multiplies f_r
-        [
-            2*a**2/h*e*np.sin(ta),
-            p/h*np.sin(ta),
-            0.0,
-            0.0,
-            -p/(e*h)*np.cos(ta)
-        ],
-        # multiplies f_theta
-        [
-            2*a**2/h * p/r,
-            ((p+r)*np.cos(ta) + r*e)/h,
-            0.0,
-            0.0,
-            (p+r)*np.sin(ta)/(e*h)
-        ],
-        # multiplies f_h
-        [
-            0.0,
-            0.0,
-            r*np.cos(ta+om)/h,
-            r*np.sin(ta+om)/(h*np.sin(i)),
-            -r*np.sin(ta+om)*np.cos(i)/(h*np.sin(i)),
-        ]
-    ]
-    return
+    sma,ecc,inc,ra,om,ta = state
+
+    p = sma*(1 - ecc**2)
+    h = np.sqrt(sma*mu*(1-ecc**2))
+    r = h**2/(mu*(1+ecc*np.cos(ta)))
+
+    # Gauss perturbation
+    psi = np.array([   
+        [2*sma**2*ecc*np.sin(ta) / h, (2*sma**2*p) / (r*h), 0.0],
+        [p*np.sin(ta) / h, ( (p + r)*np.cos(ta) + r*ecc ) / h, 0.0],
+        [0, 0, r*np.cos(ta+om) / h],
+        [0, 0, r*np.sin(ta+om)/ ( h*np.sin(inc) )],
+        [-p*np.cos(ta) / ( ecc*h ), (p+r)*np.sin(ta) / ( ecc*h ),  -( r*np.sin(ta+om)*np.cos(inc) ) / ( h*np.sin(inc) )],
+        [p*np.cos(ta) / ( ecc*h ), - (p+r)*np.sin(ta) / ( ecc*h ), 0],
+    ])
+
+    # combine
+    doe = np.dot(psi,u) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, h/r**2])
+    return doe
 
 
 def rk4(rhs, t, h, y, p):

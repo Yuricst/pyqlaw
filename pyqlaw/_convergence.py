@@ -2,6 +2,7 @@
 Check convergence
 """
 
+import copy
 import numpy as np
 
 
@@ -19,3 +20,10 @@ def check_convergence(oe, oeT, woe, tol_oe):
         return True
     else:
         return False
+
+
+def keplerian_safety(oe, oe_min, oe_max):
+    oe_clean = copy.copy(oe)
+    for idx in range(5):
+        oe_clean[idx] = min(max(oe_min[idx], oe[idx]), oe_max[idx])
+    return oe_clean

@@ -19,12 +19,12 @@ a, e, i, ra, om, ta = sym.symbols("a e i Omega omega theta")
 oe = [a,e,i,ra,om,ta]
 
 # targeted orbital elements
-aT, eT, iT, raT, omT, taT = sym.symbols("a_T e_T i_T Omega_T omega_T theta_T")
-oeT = [aT, eT, iT, raT, omT, taT]
+aT, eT, iT, raT, omT = sym.symbols("a_T e_T i_T Omega_T omega_T")
+oeT = [aT, eT, iT, raT, omT]
 
 # weights on orbital elements
-wa, we, wi, wra, wom, wta = sym.symbols("w_a w_e w_i w_Omega w_omega w_theta")
-woe = [wa, we, wi, wra, wom, wta]
+wa, we, wi, wra, wom = sym.symbols("w_a w_e w_i w_Omega w_omega")
+woe = [wa, we, wi, wra, wom]
 
 
 def angle_difference(phi1, phi2):
@@ -34,7 +34,7 @@ def angle_difference(phi1, phi2):
 def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe):
     # unpack elements
     a,e,i,ra,om,ta = oe
-    aT, eT, iT, raT, omT, taT = oeT
+    aT, eT, iT, raT, omT = oeT
     rp = a*(1-e)
     p = a*(1 - e**2)
     h = sym.sqrt(a*mu*(1-e**2))
@@ -44,7 +44,7 @@ def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro,
         a-aT, e-eT, i-iT, 
         sym.acos(sym.cos(ra - raT)),
         sym.acos(sym.cos(om - omT)),
-        sym.acos(sym.cos(ta - taT)),
+        #sym.acos(sym.cos(ta - taT)),
     ]
 
     # compute RAdot and omdot
@@ -132,20 +132,36 @@ def quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro,
         [ux,uy,uz], 
         "sympy",
     )
-    return sym.diff(q, oe[2]), sym.diff(q, oe[4]), fun_lyapunov_control
+
+    fun_eval_psi = lambdify(
+        [mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
+        psi, 
+        "sympy",
+    )
+
+    fun_eval_dqdoe = lambdify(
+        [mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
+        [dqdoe0,dqdoe1,dqdoe2,dqdoe3,dqdoe4], 
+        "sympy",
+    )
+    #sym.diff(q, oe[2]), sym.diff(q, oe[4])
+    return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe
 
 
 # create function
-hoge0, hoge1, fun_lyapunov_control = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
+print("Generating lyapunov control funcion with sympy")
+fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
 
-print(f"sym.diff(q, oe[2]): \n{hoge0}")
-print(f"sym.diff(q, oe[4]): \n{hoge1}")
+#print(f"sym.diff(q, oe[2]): \n{hoge0}")
+#print(f"sym.diff(q, oe[4]): \n{hoge1}")
 
 # assign numerical values
-a_n, e_n, i_n, ra_n, om_n, ta_n       = 1.0,0.02, 0.2,0.3,0.4,0.5
-aT_n, eT_n, iT_n, raT_n, omT_n, taT_n = 1.4,0.1,  0.7,0.8,0.9,0.1
+# a_n, e_n, i_n, ra_n, om_n, ta_n       = 1.0,0.02, 0.2,0.3,0.4,0.5
+# aT_n, eT_n, iT_n, raT_n, omT_n, taT_n = 1.4,0.1,  0.7,0.8,0.9,0.1
+a_n, e_n, i_n, ra_n, om_n, ta_n  = 1.0, 1e-2, 1e-4, 1e-4, 1e-4, 1e-4
+aT_n, eT_n, iT_n, raT_n, omT_n   = 1.2, 0.05, 1e-4, 0.0, 0.0
 oe_n = [a_n, e_n, i_n, ra_n, om_n, ta_n]
-oeT_n = [aT_n, eT_n, iT_n, raT_n, omT_n, taT_n]
+oeT_n = [aT_n, eT_n, iT_n, raT_n, omT_n]
 mu_n = 1.0
 f_n = 1.e-5
 rpmin_n = 0.8
@@ -155,12 +171,23 @@ r_petro_n = 2.0
 b_petro_n = 0.01
 k_petro_n = 1.0
 wp_n = 1.0
-woe_n = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
+woe_n = [1.0, 1.0, 1.0, 1.0, 1.0]
 
 # run the function as a test
+psi = fun_eval_psi(
+    mu_n, f_n, oe_n, oeT_n, rpmin_n, m_petro_n, n_petro_n, r_petro_n, b_petro_n, k_petro_n, wp_n, woe_n
+)
+print(f"psi: \n{psi}")
+
+dqdoe = fun_eval_dqdoe(
+    mu_n, f_n, oe_n, oeT_n, rpmin_n, m_petro_n, n_petro_n, r_petro_n, b_petro_n, k_petro_n, wp_n, woe_n
+)
+print(f"dqdoe: \n{dqdoe}")
+
+
 us = fun_lyapunov_control(
     mu_n, f_n, oe_n, oeT_n, rpmin_n, m_petro_n, n_petro_n, r_petro_n, b_petro_n, k_petro_n, wp_n, woe_n
 )
-print(f"res: \n{us}")
+print(f"us: \n{us}")
 dill.dump(fun_lyapunov_control, open("fun_lyapunov_control", "wb"))
 print("Success!")
