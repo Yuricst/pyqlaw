@@ -26,7 +26,7 @@ class QLaw:
     def __init__(
         self, 
         mu=1.0,
-        rpmin=0.8, 
+        rpmin=0.5, 
         k_petro=1.0, 
         m_petro=3.0, 
         n_petro=4.0, 
@@ -37,6 +37,7 @@ class QLaw:
         disable_tqdm=False,
         oe_min=None,
         oe_max=None,
+        nan_angles_threshold=10,
     ):
         """Construct QLaw object"""
         # dynamics
@@ -54,13 +55,15 @@ class QLaw:
         self.disable_tqdm = disable_tqdm
         # orbital elements bounds
         if oe_min is None:
-            self.oe_min = [0.05,1e-6,1e-6,0.0,0.0,0.0]
+            self.oe_min = [0.05,1e-4,1e-4,1e-4,1e-4,1e-8]
         else:
             self.oe_min = oe_min
         if oe_max is None:
             self.oe_max = [1e3,0.95,np.pi,np.inf,np.inf,np.inf]
         else:
             self.oe_max = oe_max
+        # number of times to accept nan angles
+        self.nan_angles_threshold = nan_angles_threshold
         # checks
         self.ready = False
         self.converge = False
@@ -92,7 +95,7 @@ class QLaw:
         assert len(oeT)==5, "oeT must have 5 components"
         # weight parameters
         if tol_oe is None:
-            self.tol_oe = [1e-4,1e-6,1e-4,1e-4,1e-4]
+            self.tol_oe = [1e-6,1e-6,1e-4,1e-4,1e-4]
         else:
             assert len(tol_oe)==5, "tol_oe must have 5 components"
             self.tol_oe = tol_oe
@@ -132,6 +135,7 @@ class QLaw:
         self.states = [oe_iter,]
         self.masses = [mass_iter,]
         self.controls = []
+        n_nan_angles = 0
 
         # iterate until nmax
         for idx in tqdm(range(nmax), disable=self.disable_tqdm, desc="qlaw"):
@@ -157,10 +161,14 @@ class QLaw:
                 woe=self.woe
             )
             if np.isnan(alpha) == True or np.isnan(beta) == True:
-                if self.verbosity > 0:
-                    print("Breaking as angles are nan")
-                self.exitcode = -3
-                break
+                accel_thrust = 0.0
+                alpha, beta = 0.0, 0.0
+                n_nan_angles += 1
+                if n_nan_angles > self.nan_angles_threshold:
+                    if self.verbosity > 0:
+                        print("Breaking as angles are nan")
+                    self.exitcode = -3
+                    break
 
             # update state
             oe_next = rk4(
@@ -234,8 +242,32 @@ class QLaw:
         ax.plot(coord_orbT[0,:], coord_orbT[1,:], label="Final", c="forestgreen")
 
         # plot transfer
-        ax.plot(cart[0,:], cart[1,:], label="transfer", c="crimson")
+        ax.plot(cart[0,:], cart[1,:], label="transfer", c="crimson", lw=0.5)
+        ax.scatter(cart[0,0], cart[1,0], label=None, c="crimson", marker="x")
+        ax.scatter(cart[0,-1], cart[1,-1], label=None, c="crimson", marker="o")
         ax.set_aspect('equal')
+        return fig, ax
+
+
+    def plot_trajectory_3d(self, figsize=(6,6)):
+        """Plot trajectory in xy-plane"""
+        cart = np.zeros((6,len(self.times)))
+        for idx in range(len(self.times)):
+            cart[:,idx] = kep2sv(self.states[idx], self.mu)
+
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(projection='3d')
+        # plot initial and final orbit
+        coord_orb0 = get_orbit_coordinates(self.oe0, self.mu)
+        coord_orbT = get_orbit_coordinates(np.concatenate((self.oeT,[0.0])), self.mu)
+        ax.plot(coord_orb0[0,:], coord_orb0[1,:], coord_orb0[2,:], label="Initial", c="darkblue")
+        ax.plot(coord_orbT[0,:], coord_orbT[1,:], coord_orbT[2,:], label="Final", c="forestgreen")
+
+        # plot transfer
+        ax.plot(cart[0,:], cart[1,:], cart[2,:], label="transfer", c="crimson")
+        ax.scatter(cart[0,0], cart[1,0], cart[2,0], label=None, c="crimson", marker="x")
+        ax.scatter(cart[0,-1], cart[1,-1], cart[2,-1], label=None, c="crimson", marker="o")
+        #ax.set_aspect('equal')
         return fig, ax
 
 
@@ -252,11 +284,11 @@ class QLaw:
 
     def pretty_results(self):
         """Pretty print"""
-        print(f"Transfer:")
-        print(f"  sma  : {self.states[-1][0]:1.4e} -> {self.oeT[0]:1.4e} (weight: {self.woe[0]:2.2f})")
-        print(f"  ecc  : {self.states[-1][1]:1.4e} -> {self.oeT[1]:1.4e} (weight: {self.woe[1]:2.2f})")
-        print(f"  inc  : {self.states[-1][2]:1.4e} -> {self.oeT[2]:1.4e} (weight: {self.woe[2]:2.2f})")
-        print(f"  raan : {self.states[-1][3]:1.4e} -> {self.oeT[3]:1.4e} (weight: {self.woe[3]:2.2f})")
-        print(f"  aop  : {self.states[-1][4]:1.4e} -> {self.oeT[4]:1.4e} (weight: {self.woe[4]:2.2f})")
+        print(f"Final state:")
+        print(f"  sma  : {self.states[-1][0]:1.4e} (error: {abs(self.states[-1][0]-self.oeT[0]):1.4e})")
+        print(f"  ecc  : {self.states[-1][1]:1.4e} (error: {abs(self.states[-1][1]-self.oeT[1]):1.4e})")
+        print(f"  inc  : {self.states[-1][2]:1.4e} (error: {abs(self.states[-1][2]-self.oeT[2]):1.4e})")
+        print(f"  raan : {self.states[-1][3]:1.4e} (error: {abs(self.states[-1][3]-self.oeT[3]):1.4e})")
+        print(f"  aop  : {self.states[-1][4]:1.4e} (error: {abs(self.states[-1][4]-self.oeT[4]):1.4e})")
         return
 

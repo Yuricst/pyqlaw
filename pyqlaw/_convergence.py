@@ -6,6 +6,7 @@ import copy
 import numpy as np
 
 
+#@njit
 def check_convergence(oe, oeT, woe, tol_oe):
     """Check convergence between oe and oeT"""
     check_array = np.array([1 if el == 0.0 else 0 for el in woe])
@@ -21,7 +22,7 @@ def check_convergence(oe, oeT, woe, tol_oe):
     else:
         return False
 
-
+#@njit
 def keplerian_safety(oe, oe_min, oe_max):
     oe_clean = copy.copy(oe)
     for idx in range(5):

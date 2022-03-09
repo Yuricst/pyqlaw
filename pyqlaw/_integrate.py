@@ -3,8 +3,10 @@ integration
 """
 
 import numpy as np
+from numba import njit
 
 
+@njit
 def eom_gauss(t, state, p):
     """Equations of motino for gauss"""
     # unpack parameters
@@ -37,6 +39,7 @@ def eom_gauss(t, state, p):
     return doe
 
 
+@njit
 def rk4(rhs, t, h, y, p):
     """Perform single-step Runge-Kutta 4th order
     
