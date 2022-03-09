@@ -242,7 +242,7 @@ class QLaw:
         ax.plot(coord_orbT[0,:], coord_orbT[1,:], label="Final", c="forestgreen")
 
         # plot transfer
-        ax.plot(cart[0,:], cart[1,:], label="transfer", c="crimson", lw=0.5)
+        ax.plot(cart[0,:], cart[1,:], label="transfer", c="crimson", lw=0.4)
         ax.scatter(cart[0,0], cart[1,0], label=None, c="crimson", marker="x")
         ax.scatter(cart[0,-1], cart[1,-1], label=None, c="crimson", marker="o")
         ax.set_aspect('equal')
@@ -264,7 +264,7 @@ class QLaw:
         ax.plot(coord_orbT[0,:], coord_orbT[1,:], coord_orbT[2,:], label="Final", c="forestgreen")
 
         # plot transfer
-        ax.plot(cart[0,:], cart[1,:], cart[2,:], label="transfer", c="crimson")
+        ax.plot(cart[0,:], cart[1,:], cart[2,:], label="transfer", c="crimson", lw=0.4)
         ax.scatter(cart[0,0], cart[1,0], cart[2,0], label=None, c="crimson", marker="x")
         ax.scatter(cart[0,-1], cart[1,-1], cart[2,-1], label=None, c="crimson", marker="o")
         #ax.set_aspect('equal')
