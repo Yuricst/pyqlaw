@@ -89,7 +89,7 @@ fig2, ax2 = prob.plot_trajectory_3d()
 
 
 ### To-dos
-- [ ] Effectivity for coasting
+- [x] Effectivity for coasting
 - [x] Version using MEE (See [4-6])
 - [ ] Robustify numerical unstability
 
