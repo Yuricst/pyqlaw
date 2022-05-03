@@ -237,3 +237,71 @@ def get_orbit_coordinates(oe_kep,mu,steps=200):
         coord[:,idx] = kep2sv(np.array([sma, ecc, inc, raan, aop, tas[idx]]), mu)
     return coord
 
+
+def kep2mee(oe_kep):
+    """Convert Keplerian elements to MEE"""
+    # unpack
+    a,e,i,raan,om,ta = oe_kep
+    # compute MEEs
+    p = a*(1-e**2)
+    f = e*np.cos(raan+om)
+    g = e*np.sin(raan+om)
+    h = np.tan(i/2)*np.cos(raan)
+    k = np.tan(i/2)*np.sin(raan)
+    l = raan + om + ta
+    return np.array([p,f,g,h,k,l])
+
+
+def mee2kep(oe_mee):
+    """Convert MEE to Keplerian elements"""
+    # unpack 
+    p,f,g,h,k,l = oe_mee
+    # compute Keplerian elements
+    a = p/(1-f**2-g**2)
+    e = np.sqrt(f**2 + g**2)
+    i = np.arctan2(2*np.sqrt(h**2+k**2), 1-h**2-k**2)
+    raan = np.arctan2(k,h)
+    om = np.arctan2(g*h-f*k, f*h+g*k)
+    ta = l - raan - om
+    return np.array([a,e,i,raan,om,ta])
+
+
+def mee_with_a2mee(oe_mee_with_a):
+    # unpack 
+    a,f,g,h,k,l = oe_mee_with_a
+    p = a * (1-f**2-g**2)
+    return np.array([p, f,g,h,k,l])
+
+
+def mee_with_a2kep(oe_mee_with_a):
+    return mee2kep(mee_with_a2mee(oe_mee_with_a))
+
+
+def mee2mee_with_a(oe_mee):
+    """Convert MEE to MEE with SMA"""
+    # unpack 
+    p,f,g,h,k,l = oe_mee
+    a = p/(1-f**2-g**2)
+    return np.array([a, f,g,h,k,l])
+
+
+def kep2mee_with_a(oe_kep):
+    """Get targeting element set used by Q-law when using MEE"""
+    # unpack
+    a,e,i,raan,om,ta = oe_kep
+    # compute MEEs
+    #p = a*(1-e**2)
+    f = e*np.cos(raan+om)
+    g = e*np.sin(raan+om)
+    h = np.tan(i/2)*np.cos(raan)
+    k = np.tan(i/2)*np.sin(raan)
+    l = raan + om + ta
+    return np.array([a,f,g,h,k,l])
+
+
+def mee_with_a2sv(mee_with_a, mu):
+    """Convert MEE with SMA to Cartesian states"""
+    a,f,g,h,k,l = mee_with_a
+    mee = np.array([a * (1 - f**2 - g**2), f,g,h,k,l])
+    kep = mee2kep(mee)
+    return kep2sv(kep, mu)
