@@ -356,5 +356,5 @@ def symbolic_qlaw_mee_with_a():
 
     # create function
     print("Generating MEE-SMA lyapunov control funcion with sympy")
-    fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
+    fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe = quotient(mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
     return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe 
