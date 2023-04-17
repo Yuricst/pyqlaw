@@ -210,7 +210,7 @@ class QLaw:
         """Propagate and solve control problem
         
         Args:
-            eta_a (float): absolute effectivity, `0.0 <= eta_a <= 1.0`
+            eta_a (float): min absolute effectivity to thrust, `0.0 <= eta_a <= 1.0`
             eta_r (float): relative effectivity, `0.0 <= eta_r <= 1.0`
         """
         assert self.ready == True, "Please first call `set_problem()`"
@@ -286,7 +286,7 @@ class QLaw:
 
                 # check effectivity to decide whether to thrust or coast
                 if self.eta_r > 0 or self.eta_a > 0:
-                    qdot_current = eval_qdot(psi, u)
+                    qdot_current = eval_qdot(psi, u)    # FIXME!!
                     qdot_min, qdot_max = self.evaluate_osculating_qdot(
                         oe_iter, accel_thrust
                     )
@@ -308,7 +308,8 @@ class QLaw:
                     ode_params,
                 )
                 t_iter += self.t_step  # update time
-                mass_iter -= self.mdot*self.t_step
+                if throttle == 1:
+                    mass_iter -= self.mdot*self.t_step  # update mass
                 oe_iter = oe_next
 
             elif self.integrator == "rkf45":
@@ -321,7 +322,8 @@ class QLaw:
                     self.ode_tol,
                 )
                 t_iter += self.t_step  # update time
-                mass_iter -= self.mdot*self.t_step
+                if throttle == 1:
+                    mass_iter -= self.mdot*self.t_step  # update mass
                 oe_iter = oe_next
                 #print(f"h_nect: {h_next}")
                 self.t_step = max(self.step_min, min(self.step_max,h_next))
