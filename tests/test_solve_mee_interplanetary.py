@@ -27,18 +27,16 @@ def test_object():
         print_frequency=3000,
     )
     # initial and final elements: [a,e,i,RAAN,omega,ta]
-    oe0 = pyqlaw.kep2mee_with_a(np.array([1.0, 1e-4, 0.0, 1e-2, 1e-2, 1e-3]))
-    oeT = pyqlaw.kep2mee_with_a(np.array([1.8, 0.2, np.pi/6, 1e-2, 1e-2, 1e-3]))
-    #oe0 = pyqlaw.kep2mee_with_a(np.array([1.0, 1e-4, 0.0, 0.3, 0.4, 0.1]))
-    #oeT = pyqlaw.kep2mee_with_a(np.array([1.52, 0.01, 0.02, 2.3, 0.4, 0.1]))
+    oe0 = pyqlaw.kep2mee_with_a(np.array([1.0, 1e-4, 0.0, 0.3, 0.4, 0.1]))
+    oeT = pyqlaw.kep2mee_with_a(np.array([1.52, 0.01, 0.02, 2.3, 0.4, 0.1]))
     print(f"oe0: {oe0}")
     print(f"oeT: {oeT}")
     
     woe = [1.0, 1.0, 1.0, 1.0, 1.0]
     # spacecraft parameters
     mass0 = 1.0
-    tmax = 1e-3
-    mdot = 1e-4
+    tmax = 1e-2
+    mdot = 1e-3
     tf_max = 2000.0
     t_step = 0.1
     # set problem

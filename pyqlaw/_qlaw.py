@@ -611,6 +611,7 @@ class QLaw:
 
 
 def eval_qdot(psi, u):
+    """Evaluate qdot"""
     return psi[0][0]*u[0] + psi[1][0]*u[1] + psi[2][0]*u[2] +\
            psi[0][1]*u[0] + psi[1][1]*u[1] + psi[2][1]*u[2] +\
            psi[0][2]*u[0] + psi[1][2]*u[1] + psi[2][2]*u[2] +\
