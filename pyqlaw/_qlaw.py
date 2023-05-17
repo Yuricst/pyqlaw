@@ -129,14 +129,16 @@ class QLaw:
         if self.elements_type == "keplerian":
             self.element_names = ["a", "e", "i", "raan", "omega", "ta"]
             self.eom = eom_kep_gauss
-            fun_lyapunov_control, _, _ = symbolic_qlaw_keplerian()
+            fun_lyapunov_control, _, _, fun_eval_dqdt = symbolic_qlaw_keplerian()
             self.lyap_fun = fun_lyapunov_control
+            self.dqdt_fun = fun_eval_dqdt
 
         elif self.elements_type == "mee_with_a":
             self.element_names = ["a", "f", "g", "h", "k", "L"]
             self.eom = eom_mee_with_a_gauss
-            fun_lyapunov_control, _, _ = symbolic_qlaw_mee_with_a()
+            fun_lyapunov_control, _, _, fun_eval_dqdt = symbolic_qlaw_mee_with_a()
             self.lyap_fun = fun_lyapunov_control
+            self.dqdt_fun = fun_eval_dqdt
 
         # max and min step sizes used with adaptive step integrators
         self.step_min = 1e-4
@@ -286,7 +288,15 @@ class QLaw:
 
                 # check effectivity to decide whether to thrust or coast
                 if self.eta_r > 0 or self.eta_a > 0:
-                    qdot_current = eval_qdot(psi, u)    # FIXME!!
+                    qdot_current = self.dqdt_fun(
+                        self.mu, 
+                        accel_thrust, 
+                        oe_iter, 
+                        self.oeT, 
+                        self.rpmin, self.m_petro, self.n_petro, 
+                        self.r_petro, self.b_petro, self.k_petro, 
+                        self.wp, self.woe
+                    )
                     qdot_min, qdot_max = self.evaluate_osculating_qdot(
                         oe_iter, accel_thrust
                     )
@@ -394,32 +404,41 @@ class QLaw:
         for anomaly in eval_pts:
             # construct element
             oe_test = np.array([oe[0], oe[1], oe[2], oe[3], oe[4], anomaly])
-
-            # evaluate Lyapunov function
-            alpha, beta, _, psi_test = lyapunov_control_angles(
-                fun_lyapunov_control=self.lyap_fun,
-                mu=self.mu, 
-                f=accel_thrust, 
-                oe=oe_test, 
-                oeT=self.oeT, 
-                rpmin=self.rpmin, 
-                m_petro=self.m_petro, 
-                n_petro=self.n_petro, 
-                r_petro=self.r_petro, 
-                b_petro=self.b_petro, 
-                k_petro=self.k_petro, 
-                wp=self.wp, 
-                woe=self.woe,
-            )
-            u_test = accel_thrust*np.array([
-                np.cos(beta)*np.sin(alpha),
-                np.cos(beta)*np.cos(alpha),
-                np.sin(beta),
-            ])
+            # # evaluate Lyapunov function
+            # alpha, beta, _, psi_test = lyapunov_control_angles(
+            #     fun_lyapunov_control=self.lyap_fun,
+            #     mu=self.mu, 
+            #     f=accel_thrust, 
+            #     oe=oe_test, 
+            #     oeT=self.oeT, 
+            #     rpmin=self.rpmin, 
+            #     m_petro=self.m_petro, 
+            #     n_petro=self.n_petro, 
+            #     r_petro=self.r_petro, 
+            #     b_petro=self.b_petro, 
+            #     k_petro=self.k_petro, 
+            #     wp=self.wp, 
+            #     woe=self.woe,
+            # )
+            # u_test = accel_thrust*np.array([
+            #     np.cos(beta)*np.sin(alpha),
+            #     np.cos(beta)*np.cos(alpha),
+            #     np.sin(beta),
+            # ])
 
             # evaluate qdot
-            qdot_test = eval_qdot(psi_test, u_test)
-            qdot_list.append(qdot_test)
+            qdot_list.append(
+                self.dqdt_fun(
+                    self.mu, 
+                    accel_thrust, 
+                    oe_test, 
+                    self.oeT, 
+                    self.rpmin, self.m_petro, self.n_petro, 
+                    self.r_petro, self.b_petro, self.k_petro, 
+                    self.wp, self.woe
+                )
+            )
+            #eval_qdot(psi_test, u_test)
         return min(qdot_list), max(qdot_list)
 
 
@@ -608,12 +627,3 @@ class QLaw:
         print(f"Relaxed tolerance : {self.tol_oe_relaxed}")
         print(f"Exit at relaxed   : {self.exit_at_relaxed}")
         return
-
-
-def eval_qdot(psi, u):
-    """Evaluate qdot"""
-    return psi[0][0]*u[0] + psi[1][0]*u[1] + psi[2][0]*u[2] +\
-           psi[0][1]*u[0] + psi[1][1]*u[1] + psi[2][1]*u[2] +\
-           psi[0][2]*u[0] + psi[1][2]*u[1] + psi[2][2]*u[2] +\
-           psi[0][3]*u[0] + psi[1][3]*u[1] + psi[2][3]*u[2] +\
-           psi[0][4]*u[0] + psi[1][4]*u[1] + psi[2][4]*u[2]

@@ -144,6 +144,11 @@ def symbolic_qlaw_keplerian():
 
         # compute qdot
         #qdot = ux + uy + uz
+        dqdt = dqdoe0*(psi[0][0]*ux + psi[1][0]*uy + psi[2][0]*uz) +\
+               dqdoe1*(psi[0][1]*ux + psi[1][1]*uy + psi[2][1]*uz) +\
+               dqdoe2*(psi[0][2]*ux + psi[1][2]*uy + psi[2][2]*uz) +\
+               dqdoe3*(psi[0][3]*ux + psi[1][3]*uy + psi[2][3]*uz) +\
+               dqdoe4*(psi[0][4]*ux + psi[1][4]*uy + psi[2][4]*uz)
 
         fun_lyapunov_control = lambdify(
             [mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
@@ -162,13 +167,19 @@ def symbolic_qlaw_keplerian():
             [dqdoe0,dqdoe1,dqdoe2,dqdoe3,dqdoe4], 
             "numpy",
         )
+
+        fun_eval_dqdt = lambdify(
+            [mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
+            dqdt, 
+            "numpy",
+        )
         #sym.diff(q, oe[2]), sym.diff(q, oe[4])
-        return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe
+        return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
 
     # create function
     print("Generating Keplerian lyapunov control funcion with sympy")
-    fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
-    return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe 
+    fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
+    return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
 
 
 
@@ -332,6 +343,12 @@ def symbolic_qlaw_mee_with_a():
         uy = (psi[1][0]*dqdoe0 + psi[1][1]*dqdoe1 + psi[1][2]*dqdoe2 + psi[1][3]*dqdoe3 + psi[1][4]*dqdoe4)
         uz = (psi[2][0]*dqdoe0 + psi[2][1]*dqdoe1 + psi[2][2]*dqdoe2 + psi[2][3]*dqdoe3 + psi[2][4]*dqdoe4)
 
+        dqdt = dqdoe0*(psi[0][0]*ux + psi[1][0]*uy + psi[2][0]*uz) +\
+               dqdoe1*(psi[0][1]*ux + psi[1][1]*uy + psi[2][1]*uz) +\
+               dqdoe2*(psi[0][2]*ux + psi[1][2]*uy + psi[2][2]*uz) +\
+               dqdoe3*(psi[0][3]*ux + psi[1][3]*uy + psi[2][3]*uz) +\
+               dqdoe4*(psi[0][4]*ux + psi[1][4]*uy + psi[2][4]*uz)
+
         fun_lyapunov_control = lambdify(
             [mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
             [[ux, uy, uz], psi], 
@@ -352,9 +369,15 @@ def symbolic_qlaw_mee_with_a():
             [dqdoe0,dqdoe1,dqdoe2,dqdoe3,dqdoe4], 
             "numpy",
         )
-        return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe
+
+        fun_eval_dqdt = lambdify(
+            [mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
+            dqdt, 
+            "numpy",
+        )
+        return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
 
     # create function
     print("Generating MEE-SMA lyapunov control funcion with sympy")
-    fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe = quotient(mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
-    return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe 
+    fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt = quotient(mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
+    return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt

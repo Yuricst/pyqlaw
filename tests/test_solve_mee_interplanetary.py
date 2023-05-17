@@ -44,7 +44,7 @@ def test_object():
     prob.pretty()
 
     # solve
-    prob.solve(eta_a=0.0, eta_r=0.0)
+    prob.solve(eta_a=0.1, eta_r=0.0)
     prob.pretty_results()
     tend = time.time()
     print(f"Simulation took {tend-tstart:4.4f} seconds")
