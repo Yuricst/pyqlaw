@@ -1,0 +1,12 @@
+name: pyqlaw
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - numpy
+  - scipy
+  - sympy
+  - numba
+  - matplotlib
+  - tqdm
