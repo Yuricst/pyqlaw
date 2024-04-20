@@ -177,7 +177,7 @@ def symbolic_qlaw_keplerian():
         return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
 
     # create function
-    print("Generating Keplerian lyapunov control funcion with sympy")
+    #print("Generating Keplerian lyapunov control funcion with sympy")
     fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt = quotient(mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
     return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
 
@@ -378,6 +378,6 @@ def symbolic_qlaw_mee_with_a():
         return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
 
     # create function
-    print("Generating MEE-SMA lyapunov control funcion with sympy")
+    #print("Generating MEE-SMA lyapunov control funcion with sympy")
     fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt = quotient(mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe)
     return fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
