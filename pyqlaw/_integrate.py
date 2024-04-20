@@ -165,7 +165,7 @@ def rk4(rhs, t, h, y, p):
     k2 = h * rhs(t + 0.5 * h, y + 0.5 * k1, p)
     k3 = h * rhs(t + 0.5 * h, y + 0.5 * k2, p)
     k4 = h * rhs(t + h, y + k3, p)
-    return y + (1.0 / 6.0)*(k1 + 2 * k2 + 2 * k3 + k4)
+    return y + (h / 6.0)*(k1 + 2 * k2 + 2 * k3 + k4)
 
 
 @njit

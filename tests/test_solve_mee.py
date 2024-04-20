@@ -38,9 +38,9 @@ def test_object():
     # spacecraft parameters
     mass0 = 1.0
     tmax = 1e-3
-    mdot = 1e-4
-    tf_max = 2000.0
-    t_step = 0.1
+    mdot = 1e-3
+    tf_max = 10000.0
+    t_step = -1.0
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
     prob.pretty()

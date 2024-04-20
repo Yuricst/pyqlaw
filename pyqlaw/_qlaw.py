@@ -242,7 +242,7 @@ class QLaw:
     
         # iterate until nmax
         idx = 0
-        while self.times[-1] < self.tf_max:  #for idx in tqdm(range(nmax), disable=self.disable_tqdm, desc="qlaw"):
+        while abs(self.times[-1]) < abs(self.tf_max):  #for idx in tqdm(range(nmax), disable=self.disable_tqdm, desc="qlaw"):
             # ensure numerical stabilty
             if self.elements_type=="keplerian":
                 oe_iter = elements_safety(oe_iter, self.oe_min, self.oe_max)
@@ -499,7 +499,7 @@ class QLaw:
             # interpolate orbital elements
             f_a, f_e, f_i, f_r, f_o, f_t = self.interpolate_states()
             if steps is None:
-                steps = min(8000, int(round(self.times[-1]/0.1)))
+                steps = min(8000, abs(int(round(self.times[-1]/0.1))))
                 print(f"Using {steps} steps for evaluation")
             t_evals = np.linspace(self.times[0], self.times[-1], steps)
             cart = np.zeros((6,steps))

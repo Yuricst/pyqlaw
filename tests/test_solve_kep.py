@@ -19,7 +19,7 @@ def test_object():
         integrator="rk4"
     )#, verbosity=2)
     # initial and final elements: [a,e,i,RAAN,omega,ta]
-    oe0 = np.array([1.5, 0.2, 0.3, 1e-2, 1e-2, 1e-3])
+    oe0 = np.array([1.5, 0.2, 0.3, 1e-2, 1e-2, 1e-2])
     oeT = np.array([2.2, 0.3, 1.1, 0.3, 0.0])
     woe = [1.0, 1.0, 1.0, 1.0, 1.0]
     # spacecraft parameters
@@ -27,7 +27,7 @@ def test_object():
     tmax = 1e-3
     mdot = 1e-4
     tf_max = 3000.0
-    t_step = 1.0
+    t_step = -1.0
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
     prob.pretty()
