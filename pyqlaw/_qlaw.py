@@ -248,7 +248,7 @@ class QLaw:
                 oe_iter = elements_safety(oe_iter, self.oe_min, self.oe_max)
 
             # compute instantaneous acceleration magnitude due to thrust
-            accel_thrust = self.tmax/mass_iter
+            accel_thrust = np.sign(self.t_step) * self.tmax/mass_iter
 
             # evaluate Lyapunov function
             alpha, beta, _, psi = lyapunov_control_angles(
