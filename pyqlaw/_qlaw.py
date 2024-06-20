@@ -18,6 +18,19 @@ from ._elements import (
 )
 from ._plot_helper import plot_sphere_wireframe, set_equal_axis
 
+import json
+
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
 
 class QLaw:
     """Object for Q-law based transfer problem.
@@ -627,3 +640,36 @@ class QLaw:
         print(f"Relaxed tolerance : {self.tol_oe_relaxed}")
         print(f"Exit at relaxed   : {self.exit_at_relaxed}")
         return
+
+    def save_to_dict(self, filepath, save_control_angles = False):
+        """Export result into a dictionary, saved as json if filepath is provided
+        
+        Args:
+            filepath (str): filepath to json filename to save the dictionary
+        """
+        initial_guess = {
+            "t0": 0.0,
+            "tf": self.times[-1],
+            "times": self.times,
+            "states": [list(oe)+[m] for (oe,m) in zip(self.states, self.masses)],
+        }
+        _controls = copy.deepcopy(self.controls)
+        _controls.append([0,0,0])   # final step to match time-steps
+        _controls = np.array(_controls)
+        if save_control_angles:
+            initial_guess["controls"] = _controls
+        else:
+            # convert to RTN unit vectors
+            alphas    = _controls[:,0]
+            betas     = _controls[:,1]
+            taus      = _controls[:,2]
+            uR = np.cos(betas) * np.sin(alphas)
+            uT = np.cos(betas) * np.cos(alphas)
+            uN = np.sin(betas)
+            initial_guess["controls"] = np.stack((uR,uT,uN,taus)).T
+
+        if filepath is not None:
+            #dumped = json.dumps(initial_guess, cls=NumpyEncoder)
+            with open(filepath, 'w') as f:
+                json.dump(initial_guess, f, cls=NumpyEncoder, indent=4)
+        return initial_guess
