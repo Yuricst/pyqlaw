@@ -762,7 +762,7 @@ class QLaw:
         print(f"Exit at relaxed   : {self.exit_at_relaxed}")
         return
 
-    def save_to_dict(self, filepath, save_control_angles = False):
+    def save_to_dict(self, filepath, canonical_units=None, save_control_angles = False):
         """Export result into a dictionary, saved as json if filepath is provided
         
         Args:
@@ -772,6 +772,7 @@ class QLaw:
             "t0": 0.0,
             "tf": self.times[-1],
             "times": self.times,
+            "canonical_units": canonical_units,
             "states": [list(mee_with_a2mee(oe))+[m] for (oe,m) in zip(self.states, self.masses)],
         }
         _controls = copy.deepcopy(self.controls)
