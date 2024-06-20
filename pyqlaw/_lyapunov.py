@@ -4,7 +4,16 @@ Lyapunov feedback control
 
 import numpy as np
 import numpy.linalg as la
+from numba import njit
 
+@njit
+def _u_to_thrust_angles(u_float):
+    """Convert unscaled vector u_float to unit-vector u & thrust angles alpha and beta"""
+    u_float_norm = np.sqrt( u_float[0]**2 + u_float[1]**2 + u_float[2]**2 )
+    u = u_float/u_float_norm
+    alpha = np.arctan2(-u[0],-u[1])
+    beta = np.arctan(-u[2]/np.sqrt(u[0]**2 + u[1]**2))
+    return u, alpha, beta
 
 
 def lyapunov_control_angles(
@@ -52,9 +61,5 @@ def lyapunov_control_angles(
 
     # compute thrust angles
     u_float = np.array([float(el) for el in u_raw])
-    u_float_norm = np.sqrt( u_float[0]**2 + u_float[1]**2 + u_float[2]**2 )
-    u = u_float/u_float_norm
-
-    alpha = np.arctan2(-u[0],-u[1])
-    beta = np.arctan(-u[2]/np.sqrt(u[0]**2 + u[1]**2))
+    u, alpha, beta = _u_to_thrust_angles(u_float)
     return alpha, beta, u, psi

@@ -32,7 +32,7 @@ def test_object():
     ra_gto = 35786 + 6378
     sma_gto = (rp_gto + ra_gto)/(2*LU)
     ecc_gto = (ra_gto - rp_gto)/(ra_gto + rp_gto)
-    KEP0 = [sma_gto,ecc_gto,np.deg2rad(6),0,0,0]
+    KEP0 = [sma_gto,ecc_gto,np.deg2rad(23),0,0,0]
     KEPF = [1,0,np.deg2rad(3),0,0,0]
 
     if use_keplerian:
@@ -57,6 +57,7 @@ def test_object():
         verbosity=2,
         print_frequency=3000,
         duty_cycle = duty_cycle,
+        use_sundman = True,
     )
 
     # spacecraft parameters
@@ -70,7 +71,7 @@ def test_object():
     tmax = tmax_si * (1/MU)*(TU**2/(1e3*LU))
     mdot = np.abs(mdot_si) *(TU/MU)
     tf_max = 10000.0
-    t_step = 0.05
+    t_step = np.deg2rad(15)
 
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
@@ -83,12 +84,9 @@ def test_object():
     print(f"Simulation took {tend-tstart:4.4f} seconds")
 
     # plot
-    fig1, ax1 = prob.plot_elements_history(to_keplerian=True)
+    fig1, ax1 = prob.plot_elements_history(to_keplerian=True, TU=TU/86400, time_unit_name="day")
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=6378/LU, lw=0.1, interpolate=False)
-    fig3, ax3 = prob.plot_controls()
-
-    # export state history as initial guess for ICLOCS2
-
+    fig3, ax3 = prob.plot_controls(TU=TU/86400, time_unit_name="day")
     
     print(f"oe0 = {oe0}")
     print(f"oeT = {oeT}")

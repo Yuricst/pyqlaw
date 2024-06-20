@@ -13,8 +13,14 @@ from ._lyapunov import lyapunov_control_angles
 from ._integrate import eom_kep_gauss, eom_mee_gauss, eom_mee_with_a_gauss, rk4, rkf45
 from ._convergence import check_convergence, elements_safety
 from ._elements import (
-    kep2sv, mee_with_a2sv, get_orbit_coordinates, 
-    mee_with_a2mee, mee2mee_with_a, mee_with_a2kep
+    kep2sv,
+    mee_with_a2sv,
+    get_orbit_coordinates, 
+    mee_with_a2mee,
+    mee2mee_with_a,
+    mee_with_a2kep,
+    ta2ea,
+    mee2ea
 )
 from ._plot_helper import plot_sphere_wireframe, set_equal_axis
 
@@ -66,7 +72,7 @@ class QLaw:
         oe_max (np.array): minimum values of elements for safe-guarding
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
-        duty_cycle (tuple or None): times for duty cycle, default is None
+        duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
 
     Attributes:
         print_frequency (int): if verbosity >= 2, prints at this frequency
@@ -91,6 +97,7 @@ class QLaw:
         nan_angles_threshold=10,
         print_frequency=200,
         duty_cycle = (1e16, 0.0),
+        use_sundman = False,
     ):
         """Construct QLaw object"""
         # dynamics
@@ -163,6 +170,7 @@ class QLaw:
 
         # duty cycles
         self.duty_cycle = duty_cycle
+        self.use_sundman = use_sundman
 
         # print frequency
         self.print_frequency = print_frequency  # print at (# of iteration) % self.print_frequency
@@ -235,8 +243,6 @@ class QLaw:
             eta_r (float): relative effectivity, `0.0 <= eta_r <= 1.0`
         """
         assert self.ready == True, "Please first call `set_problem()`"
-        # get max number of steps
-        #nmax = int(round(self.tf_max / self.t_step))
 
         # efficiency thresholds
         self.eta_a = eta_a
@@ -271,8 +277,31 @@ class QLaw:
             if self.elements_type=="keplerian":
                 oe_iter = elements_safety(oe_iter, self.oe_min, self.oe_max)
 
+            # if using Sundman transformation, choose new time-step
+            if self.use_sundman:
+                # compute eccentric anomaly
+                if self.elements_type=="keplerian":
+                    ecc_iter = oe_iter[1]
+                    E0 = ta2ea(oe_iter[5], oe_iter[1])
+                    period = 2*np.pi*np.sqrt(oe_iter[0]**3/self.mu)
+                elif self.elements_type=="mee_with_a":
+                    ecc_iter = np.sqrt(oe_iter[1]**2 + oe_iter[2]**2)
+                    E0 = mee2ea(oe_iter)
+                    period = 2*np.pi*np.sqrt(oe_iter[0]**3/self.mu)
+                E1 = E0 + self.t_step
+
+                # compute mean anomaly
+                M0 = E0 - ecc_iter*np.sin(E0)
+                M1 = E1 - ecc_iter*np.sin(E1)
+                if M1 > M0:
+                    t_step_local = (M1/(2*np.pi) - M0/(2*np.pi)) * period
+                else:
+                    t_step_local = (M1/(2*np.pi) + 1 - M0/(2*np.pi)) * period
+            else:
+                t_step_local = self.t_step
+
             # compute instantaneous acceleration magnitude due to thrust
-            accel_thrust = np.sign(self.t_step) * self.tmax/mass_iter
+            accel_thrust = np.sign(t_step_local) * self.tmax/mass_iter
 
             # evaluate duty cycle
             if ((t_iter - t_last_ON) > self.duty_cycle[0]) and (duty is True):
@@ -367,30 +396,30 @@ class QLaw:
                 oe_next = rk4(
                     self.eom, 
                     t_iter,
-                    self.t_step,
+                    t_step_local,
                     oe_iter,
                     ode_params,
                 )
-                t_iter += self.t_step  # update time
+                t_iter += t_step_local  # update time
                 if throttle == 1:
-                    mass_iter -= self.mdot*self.t_step  # update mass
+                    mass_iter -= self.mdot*t_step_local  # update mass
                 oe_iter = oe_next
 
             elif self.integrator == "rkf45":
                 oe_next, h_next = rkf45(
                     self.eom, 
                     t_iter,
-                    self.t_step,
+                    t_step_local,
                     oe_iter,
                     ode_params,
                     self.ode_tol,
                 )
-                t_iter += self.t_step  # update time
+                t_iter += t_step_local  # update time
                 if throttle == 1:
-                    mass_iter -= self.mdot*self.t_step  # update mass
+                    mass_iter -= self.mdot*t_step_local  # update mass
                 oe_iter = oe_next
                 #print(f"h_nect: {h_next}")
-                self.t_step = max(self.step_min, min(self.step_max,h_next))
+                t_step_local = max(self.step_min, min(self.step_max,h_next))
             else:
                 raise ValueError("integrator name invalid!")
                 
@@ -496,40 +525,86 @@ class QLaw:
         return min(qdot_list), max(qdot_list)
 
 
-    def plot_elements_history(self, figsize=(10,6), loc='lower center', to_keplerian=False):
-        """Plot elements time history"""
+    def plot_elements_history(
+        self,
+        figsize = (10,6),
+        to_keplerian = False,
+        TU = 1.0,
+        time_unit_name = "TU",
+        plot_mass = True,
+        plot_periapsis = False,
+    ):
+        """Plot elements time history
+        
+        Args:
+            figsize (tuple): figure size
+            to_keplerian (bool): whether to convert to Keplerian elements
+            TU (float): time unit
+            time_unit_name (str): name of time unit
+            plot_mass (bool): whether to plot mass or anomaly
+            plot_periapsis (bool): whether to overlay periapsis history on top of first plot
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
         oes = np.zeros((6,len(self.times)))
         for idx in range(len(self.times)):
             if to_keplerian == True and self.elements_type=="mee_with_a":
                 oes[:,idx] = mee_with_a2kep(self.states[idx])
                 labels = ["a", "e", "i", "raan", "om", "ta"]
+                multipliers = [1,1,180/np.pi,180/np.pi,180/np.pi,180/np.pi]
+                oe_T = mee_with_a2kep(np.concatenate((self.oeT,[0.0])))[0:5]
             else:
                 oes[:,idx] = self.states[idx]
                 labels = self.element_names
+                multipliers = [1,1,1,1,1,1]
+                oe_T = self.oeT
 
         fig, axs = plt.subplots(2,3,figsize=figsize)
         for idx,ax in enumerate(axs.flatten()[:5]):
-            ax.plot(self.times, oes[idx,:], label=labels[idx])
-            ax.set(xlabel="Time", ylabel=labels[idx])
-        axs[0,0].plot(self.times, oes[0,:]*(1 - oes[1,:]))
-        axs[1,2].plot(self.times, oes[5,:] % (2*np.pi), label=labels[5])
-        axs[1,2].set(xlabel="Time", ylabel=labels[5])
+            # target
+            ax.axhline(oe_T[idx]*multipliers[idx], color='r', linestyle='--')
+
+            # state history
+            ax.plot(np.array(self.times)*TU, oes[idx,:]*multipliers[idx], label=labels[idx])
+            ax.set(xlabel=f"Time, {time_unit_name}", ylabel=labels[idx])
+
+        # overlay periapsis
+        if plot_periapsis:
+            axs[0,0].plot(np.array(self.times)*TU, oes[0,:]*(1 - oes[1,:]))
+
+        # plot mass or TA
+        if plot_mass:
+            axs[1,2].plot(np.array(self.times)*TU, self.masses)
+            axs[1,2].set(xlabel=f"Time, {time_unit_name}", ylabel="Mass")
+        else:
+            axs[1,2].plot(np.array(self.times)*TU, (oes[5,:] % (2*np.pi))*180/np.pi, label=labels[5])
+            axs[1,2].set(xlabel=f"Time, {time_unit_name}", ylabel=labels[5])
         plt.tight_layout()
         return fig, ax
 
 
-    def plot_controls(self, figsize=(9,6)):
-        """Plot control time history"""
+    def plot_controls(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
+        """Plot control time history
+        
+        Args:
+            figsize (tuple): figure size
+            TU (float): time unit
+            time_unit_name (str): name of time unit
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
         alphas, betas, throttles = [], [], []
         for control in self.controls:
             alphas.append(control[0])
             betas.append(control[1])
             throttles.append(control[2])
         fig, ax = plt.subplots(1,1,figsize=figsize)
-        ax.plot(self.times[0:-1], np.array(alphas)*180/np.pi, marker='o', markersize=2, label="alpha")
-        ax.plot(self.times[0:-1], np.array(betas)*180/np.pi,  marker='o', markersize=2, label="beta")
-        ax.plot(self.times[0:-1], np.array(throttles)*100,  marker='o', markersize=2, label="throttle, %")
-        ax.set(xlabel="Time", ylabel="Control angles and throttle")
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(alphas)*180/np.pi, marker='o', markersize=2, label="alpha")
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(betas)*180/np.pi,  marker='o', markersize=2, label="beta")
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(throttles)*100,  marker='o', markersize=2, label="throttle, %")
+        ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Control angles and throttle")
         ax.legend()
         return fig, ax
 

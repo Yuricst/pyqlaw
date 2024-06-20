@@ -189,6 +189,7 @@ def sv2kep(state, mu):
     return np.array([sma, ecc, inc, raan, aop, ta])
 
 
+@njit
 def kep2sv(kep, mu):
     """Convert Keplerian elements to Cartesian states
     Args:
@@ -228,6 +229,7 @@ def kep2sv(kep, mu):
     return np.concatenate((rI, vI))
 
 
+@njit
 def get_orbit_coordinates(oe_kep,mu,steps=200):
     # unpack elements
     sma, ecc, inc, raan, aop, _ = oe_kep
@@ -238,6 +240,7 @@ def get_orbit_coordinates(oe_kep,mu,steps=200):
     return coord
 
 
+@njit
 def kep2mee(oe_kep):
     """Convert Keplerian elements to MEE"""
     # unpack
@@ -252,6 +255,7 @@ def kep2mee(oe_kep):
     return np.array([p,f,g,h,k,l])
 
 
+@njit
 def mee2kep(oe_mee):
     """Convert MEE to Keplerian elements"""
     # unpack 
@@ -266,6 +270,7 @@ def mee2kep(oe_mee):
     return np.array([a,e,i,raan,om,ta])
 
 
+@njit
 def mee_with_a2mee(oe_mee_with_a):
     # unpack 
     a,f,g,h,k,l = oe_mee_with_a
@@ -277,6 +282,7 @@ def mee_with_a2kep(oe_mee_with_a):
     return mee2kep(mee_with_a2mee(oe_mee_with_a))
 
 
+@njit
 def mee2mee_with_a(oe_mee):
     """Convert MEE to MEE with SMA"""
     # unpack 
@@ -285,6 +291,7 @@ def mee2mee_with_a(oe_mee):
     return np.array([a, f,g,h,k,l])
 
 
+@njit
 def kep2mee_with_a(oe_kep):
     """Get targeting element set used by Q-law when using MEE"""
     # unpack
@@ -299,9 +306,24 @@ def kep2mee_with_a(oe_kep):
     return np.array([a,f,g,h,k,l])
 
 
+@njit
 def mee_with_a2sv(mee_with_a, mu):
     """Convert MEE with SMA to Cartesian states"""
     a,f,g,h,k,l = mee_with_a
     mee = np.array([a * (1 - f**2 - g**2), f,g,h,k,l])
     kep = mee2kep(mee)
     return kep2sv(kep, mu)
+
+
+@njit
+def ta2ea(ta,ecc):
+    """Convert true anomaly to eccentric anomaly"""
+    ea = 2*np.arctan(np.sqrt((1-ecc)/(1+ecc))*np.tan(ta/2))
+    return ea
+
+
+@njit
+def mee2ea(mee):
+    ecc = np.sqrt(mee[1]**2 + mee[2]**2)
+    ta = mee[5] - np.arctan2(mee[4],mee[3])
+    return ta2ea(ta,ecc)
