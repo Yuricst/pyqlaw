@@ -65,6 +65,8 @@ class QLaw:
         oe_min (np.array): minimum values of elements for safe-guarding
         oe_max (np.array): minimum values of elements for safe-guarding
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
+        print_frequency (int): if verbosity >= 2, prints at this frequency
+        duty_cycle (tuple or None): times for duty cycle, default is None
 
     Attributes:
         print_frequency (int): if verbosity >= 2, prints at this frequency
@@ -72,7 +74,7 @@ class QLaw:
     def __init__(
         self, 
         mu=1.0,
-        rpmin=0.5, 
+        rpmin=0.1, 
         k_petro=1.0, 
         m_petro=3.0, 
         n_petro=4.0, 
@@ -88,6 +90,7 @@ class QLaw:
         oe_max=None,
         nan_angles_threshold=10,
         print_frequency=200,
+        duty_cycle = (1e16, 0.0),
     ):
         """Construct QLaw object"""
         # dynamics
@@ -157,6 +160,9 @@ class QLaw:
         self.step_min = 1e-4
         self.step_max = 2.0
         self.ode_tol = 1.e-5
+
+        # duty cycles
+        self.duty_cycle = duty_cycle
 
         # print frequency
         self.print_frequency = print_frequency  # print at (# of iteration) % self.print_frequency
@@ -252,7 +258,12 @@ class QLaw:
         if self.verbosity >= 2:
             self.disable_tqdm = True
             header = " iter   |  time      |  del1       |  del2       |  del3       |  del4       |  del5       |  el6        |"
-    
+
+        # place-holder for handling duty cycle
+        duty = True
+        t_last_ON  = 0.0
+        t_last_OFF = 0.0
+
         # iterate until nmax
         idx = 0
         while abs(self.times[-1]) < abs(self.tf_max):  #for idx in tqdm(range(nmax), disable=self.disable_tqdm, desc="qlaw"):
@@ -263,62 +274,92 @@ class QLaw:
             # compute instantaneous acceleration magnitude due to thrust
             accel_thrust = np.sign(self.t_step) * self.tmax/mass_iter
 
-            # evaluate Lyapunov function
-            alpha, beta, _, psi = lyapunov_control_angles(
-                fun_lyapunov_control=self.lyap_fun,
-                mu=self.mu, 
-                f=accel_thrust, 
-                oe=oe_iter, 
-                oeT=self.oeT, 
-                rpmin=self.rpmin, 
-                m_petro=self.m_petro, 
-                n_petro=self.n_petro, 
-                r_petro=self.r_petro, 
-                b_petro=self.b_petro, 
-                k_petro=self.k_petro, 
-                wp=self.wp, 
-                woe=self.woe,
-            )
+            # evaluate duty cycle
+            if ((t_iter - t_last_ON) > self.duty_cycle[0]) and (duty is True):
+                duty = False            # turn off duty cycle
+                t_last_OFF = t_iter     # latest time when we turn off
+            
+            if ((t_iter - t_last_OFF) > self.duty_cycle[1]) and (duty is False):
+                duty = True             # turn on duty cycle
+                t_last_ON = t_iter      # latest time when we turn on
 
-            # ensure angles are not nan and otherwise compute thrust vector
-            throttle = 1   # initialize
-            if np.isnan(alpha) == True or np.isnan(beta) == True:
-                alpha, beta = 0.0, 0.0
-                throttle = 0  # turn off
-                u = np.array([0.0,0.0,0.0])
-                n_nan_angles += 1
-                if n_nan_angles > self.nan_angles_threshold:
-                    if self.verbosity > 0:
-                        print("Breaking as angles are nan")
-                    self.exitcode = -3
-                    break
+            if duty:
+                # evaluate Lyapunov function
+                alpha, beta, _, psi = lyapunov_control_angles(
+                    fun_lyapunov_control=self.lyap_fun,
+                    mu=self.mu, 
+                    f=accel_thrust, 
+                    oe=oe_iter, 
+                    oeT=self.oeT, 
+                    rpmin=self.rpmin, 
+                    m_petro=self.m_petro, 
+                    n_petro=self.n_petro, 
+                    r_petro=self.r_petro, 
+                    b_petro=self.b_petro, 
+                    k_petro=self.k_petro, 
+                    wp=self.wp, 
+                    woe=self.woe,
+                )
+
+                # ensure angles are not nan and otherwise compute thrust vector
+                throttle = 1   # initialize
+                if np.isnan(alpha) == True or np.isnan(beta) == True:
+                    alpha, beta = 0.0, 0.0
+                    throttle = 0  # turn off
+                    u = np.array([0.0,0.0,0.0])
+                    n_nan_angles += 1
+                    if n_nan_angles > self.nan_angles_threshold:
+                        if self.verbosity > 0:
+                            print("Breaking as angles are nan")
+                        self.exitcode = -3
+                        break
+                else:
+                    u = accel_thrust*np.array([
+                        np.cos(beta)*np.sin(alpha),
+                        np.cos(beta)*np.cos(alpha),
+                        np.sin(beta),
+                    ])
+
+                    # check effectivity to decide whether to thrust or coast
+                    if self.eta_r > 0 or self.eta_a > 0:
+                        qdot_current = self.dqdt_fun(
+                            self.mu, 
+                            accel_thrust, 
+                            oe_iter, 
+                            self.oeT, 
+                            self.rpmin, self.m_petro, self.n_petro, 
+                            self.r_petro, self.b_petro, self.k_petro, 
+                            self.wp, self.woe
+                        )
+                        qdot_min, qdot_max = self.evaluate_osculating_qdot(
+                            oe_iter, accel_thrust
+                        )
+                        val_eta_a = qdot_current/qdot_min
+                        val_eta_r = (qdot_current - qdot_max)/(qdot_min - qdot_max)
+                        # turn thrust off if below threshold
+                        if val_eta_a < self.eta_a or val_eta_r < self.eta_r:
+                            throttle = 0  # turn off
+                            u = np.zeros((3,))
             else:
-                u = accel_thrust*np.array([
-                    np.cos(beta)*np.sin(alpha),
-                    np.cos(beta)*np.cos(alpha),
-                    np.sin(beta),
-                ])
-
-                # check effectivity to decide whether to thrust or coast
-                if self.eta_r > 0 or self.eta_a > 0:
-                    qdot_current = self.dqdt_fun(
-                        self.mu, 
-                        accel_thrust, 
-                        oe_iter, 
-                        self.oeT, 
-                        self.rpmin, self.m_petro, self.n_petro, 
-                        self.r_petro, self.b_petro, self.k_petro, 
-                        self.wp, self.woe
-                    )
-                    qdot_min, qdot_max = self.evaluate_osculating_qdot(
-                        oe_iter, accel_thrust
-                    )
-                    val_eta_a = qdot_current/qdot_min
-                    val_eta_r = (qdot_current - qdot_max)/(qdot_min - qdot_max)
-                    # turn thrust off if below threshold
-                    if val_eta_a < self.eta_a or val_eta_r < self.eta_r:
-                        throttle = 0  # turn off
-                        u = np.zeros((3,))
+                u = np.zeros((3,))
+                throttle = 0  # turn off
+                # evaluate Lyapunov function just for psi (FIXME)
+                _, _, _, psi = lyapunov_control_angles(
+                    fun_lyapunov_control=self.lyap_fun,
+                    mu=self.mu, 
+                    f=accel_thrust, 
+                    oe=oe_iter, 
+                    oeT=self.oeT, 
+                    rpmin=self.rpmin, 
+                    m_petro=self.m_petro, 
+                    n_petro=self.n_petro, 
+                    r_petro=self.r_petro, 
+                    b_petro=self.b_petro, 
+                    k_petro=self.k_petro, 
+                    wp=self.wp, 
+                    woe=self.woe,
+                )
+                #print(f"throttle = {throttle}")
 
             # ODE parameters
             ode_params = (self.mu, u, psi[0], psi[1], psi[2])
@@ -371,8 +412,8 @@ class QLaw:
             if self.verbosity >= 2 and np.mod(idx,self.print_frequency)==0:
                 if np.mod(idx, 20*self.print_frequency) == 0:
                     print("\n" + header)
-                t_fraction = t_iter/self.tf_max
-                print(f" {idx:6.0f} | {t_fraction: 1.3e} | {oe_next[0]-self.oeT[0]: 1.4e} | {oe_next[1]-self.oeT[1]: 1.4e} | {oe_next[2]-self.oeT[2]: 1.4e} | {oe_next[3]-self.oeT[3]: 1.4e} | {oe_next[4]-self.oeT[4]: 1.4e} | {oe_next[5]: 1.4e} |")
+                #t_fraction = t_iter/self.tf_max
+                print(f" {idx:6.0f} | {t_iter: 1.3e} | {oe_next[0]-self.oeT[0]: 1.4e} | {oe_next[1]-self.oeT[1]: 1.4e} | {oe_next[2]-self.oeT[2]: 1.4e} | {oe_next[3]-self.oeT[3]: 1.4e} | {oe_next[4]-self.oeT[4]: 1.4e} | {oe_next[5]: 1.4e} |")
 
             # check if mass is below threshold
             if mass_iter <= self.mass_min:
@@ -455,7 +496,7 @@ class QLaw:
         return min(qdot_list), max(qdot_list)
 
 
-    def plot_elements_history(self, figsize=(6,4), loc='lower center', to_keplerian=False):
+    def plot_elements_history(self, figsize=(10,6), loc='lower center', to_keplerian=False):
         """Plot elements time history"""
         oes = np.zeros((6,len(self.times)))
         for idx in range(len(self.times)):
@@ -466,12 +507,14 @@ class QLaw:
                 oes[:,idx] = self.states[idx]
                 labels = self.element_names
 
-        fig, ax = plt.subplots(1,1,figsize=figsize)
-        for idx in range(5):
+        fig, axs = plt.subplots(2,3,figsize=figsize)
+        for idx,ax in enumerate(axs.flatten()[:5]):
             ax.plot(self.times, oes[idx,:], label=labels[idx])
-        ax.plot(self.times, oes[5,:] % (2*np.pi), label=labels[5])
-        ax.legend(loc=loc)
-        ax.set(xlabel="Time", ylabel="Elements")
+            ax.set(xlabel="Time", ylabel=labels[idx])
+        axs[0,0].plot(self.times, oes[0,:]*(1 - oes[1,:]))
+        axs[1,2].plot(self.times, oes[5,:] % (2*np.pi), label=labels[5])
+        axs[1,2].set(xlabel="Time", ylabel=labels[5])
+        plt.tight_layout()
         return fig, ax
 
 
@@ -491,22 +534,22 @@ class QLaw:
         return fig, ax
 
 
-    def interpolate_states(self):
+    def interpolate_states(self, kind="quadratic"):
         """Create interpolation states"""
         # prepare states matrix
         state_matrix = np.zeros((6,len(self.states)))
         for idx,state in enumerate(self.states):
             state_matrix[:,idx] = state
-        f_a = interp1d(self.times, state_matrix[0,:])
-        f_e = interp1d(self.times, state_matrix[1,:])
-        f_i = interp1d(self.times, state_matrix[2,:])
-        f_r = interp1d(self.times, state_matrix[3,:])
-        f_o = interp1d(self.times, state_matrix[4,:])
-        f_t = interp1d(self.times, state_matrix[5,:])
+        f_a = interp1d(self.times, state_matrix[0,:], kind=kind)
+        f_e = interp1d(self.times, state_matrix[1,:], kind=kind)
+        f_i = interp1d(self.times, state_matrix[2,:], kind=kind)
+        f_r = interp1d(self.times, state_matrix[3,:], kind=kind)
+        f_o = interp1d(self.times, state_matrix[4,:], kind=kind)
+        f_t = interp1d(self.times, state_matrix[5,:], kind=kind)
         return (f_a, f_e, f_i, f_r, f_o, f_t)
 
 
-    def get_cartesian_history(self, interpolate=True, steps=None):
+    def get_cartesian_history(self, interpolate=False, steps=None):
         """Get Cartesian history of states"""
         if interpolate:
             # interpolate orbital elements
@@ -534,7 +577,7 @@ class QLaw:
     def plot_trajectory_2d(
         self, 
         figsize=(6,6),
-        interpolate=True, 
+        interpolate=False, 
         steps=None, 
     ):
         """Plot trajectory in xy-plane"""
@@ -567,7 +610,8 @@ class QLaw:
         steps=None, 
         plot_sphere=True,
         sphere_radius=0.35,
-        scale=1.02
+        scale=1.02,
+        lw = 0.4
     ):
         """Plot trajectory in xyz"""
         # get cartesian history
@@ -585,6 +629,12 @@ class QLaw:
                 mee_with_a2kep(np.concatenate((self.oeT, [0.0]))), 
                 self.mu
             )
+
+        # plot transfer
+        ax.plot(cart[0,:], cart[1,:], cart[2,:], label="transfer", c="crimson", lw=lw)
+        ax.scatter(cart[0,0], cart[1,0], cart[2,0], label=None, c="crimson", marker="x")
+        ax.scatter(cart[0,-1], cart[1,-1], cart[2,-1], label=None, c="crimson", marker="o")
+
         ax.plot(coord_orb0[0,:], coord_orb0[1,:], coord_orb0[2,:], label="Initial", c="darkblue")
         ax.plot(coord_orbT[0,:], coord_orbT[1,:], coord_orbT[2,:], label="Final", c="forestgreen")
 
@@ -596,10 +646,6 @@ class QLaw:
             zlims = [min(cart[2,:]), max(cart[2,:])]
             set_equal_axis(ax, xlims, ylims, zlims, scale=scale)
 
-        # plot transfer
-        ax.plot(cart[0,:], cart[1,:], cart[2,:], label="transfer", c="crimson", lw=0.4)
-        ax.scatter(cart[0,0], cart[1,0], cart[2,0], label=None, c="crimson", marker="x")
-        ax.scatter(cart[0,-1], cart[1,-1], cart[2,-1], label=None, c="crimson", marker="o")
         #ax.set_aspect('equal')
         ax.set(xlabel="x", ylabel="y", zlabel="z")
         return fig, ax
