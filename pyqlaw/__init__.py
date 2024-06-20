@@ -21,7 +21,10 @@ from ._elements import (
     mee2kep,
     kep2mee_with_a,
     mee_with_a2sv,
+    ta2ea,
+    mee2ea,
 )
+from ._convergence import check_convergence
 from ._qlaw import QLaw
 from ._plot_helper import (
     get_sphere_coordinates,
