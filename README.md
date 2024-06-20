@@ -3,7 +3,7 @@ Q-law feedback control for low-thrust orbital transfer in Python
 
 ### Dependencies
 
-- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `dill`
+- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`
 
 ### Basic usage
 
