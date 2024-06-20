@@ -24,8 +24,10 @@ def test_object():
         print_frequency=3000,
     )
     # initial and final elements: [a,e,i,RAAN,omega,ta]
-    oe0 = pyqlaw.kep2mee_with_a(np.array([0.5780, 0.7301, 0.4014, 1.7453, 4.7124, 0.4014]))
-    oeT = pyqlaw.kep2mee_with_a(np.array([1.0000, 1e-3, 1e-3, 1.7802, 0.5934, 0.0873]))
+    KEP0 = [0.578004933118300,0.730089040252759,0.401425727958696,1.745329251994330,4.712388980384690,0.401425727958696]
+    KEPF = [1,0,0,1.780235837034216,0.593411945678072,0.087266462599716]
+    oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
+    oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
     print(f"oe0: {oe0}")
     print(f"oeT: {oeT}")
     

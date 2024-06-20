@@ -651,7 +651,7 @@ class QLaw:
             "t0": 0.0,
             "tf": self.times[-1],
             "times": self.times,
-            "states": [list(oe)+[m] for (oe,m) in zip(self.states, self.masses)],
+            "states": [list(mee_with_a2mee(oe))+[m] for (oe,m) in zip(self.states, self.masses)],
         }
         _controls = copy.deepcopy(self.controls)
         _controls.append([0,0,0])   # final step to match time-steps
