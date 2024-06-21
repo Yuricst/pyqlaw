@@ -19,9 +19,10 @@ Capabilities:
 Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
 In general, the following should be kept in mind:
 
-- For numerical stability, always work with canonical scales
-- Be very careful with initial/final orbits not to contain singular elements (e.g. inclination ~ 0 deg in Keplerian elements representation)
-- Q-law is not suitable for high control authority applications (e.g. interplanetary transfer with 0~very few revolutions)
+- For numerical stability, always work with canonical scales.
+- Be very careful with initial/final orbits not to contain singular elements (e.g. inclination ~ 0 deg in Keplerian elements representation).
+- Q-law is not suitable for high control authority applications (e.g. interplanetary transfer with 0~very few revolutions).
+- Taking larger integration time steps `t_step` (or angle steps, if `use_sundman = True`) makes the algorithm ``faster'' (less time until reaching the targeted elements), but may also lead to instability/high jitter once the spacecraft is close to the target; an appropriate value must be found on a problem-to-problem basis.
 
 
 For more discussions, see for example: 
