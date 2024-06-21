@@ -13,6 +13,7 @@ Capabilities:
 
 - `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`
 
+
 ### References
 
 Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
@@ -111,17 +112,6 @@ fig2, ax2 = prob.plot_trajectory_3d()
 <p align="center">
   <img src="./plots//transfer_eg_3dtraj.png" width="400" title="transfer">
 </p>
-
-
-### To-dos
-- [x] Effectivity for coasting
-- [x] Version using MEE (See [4-6])
-- [ ] Robustify numerical unstability
-
-
-### Some things to be careful!
-
-- Gauss's equation in terms of Keplerian elements is particularly unstable when eccentricity (e) and inclination (i) approach 0
 
 
 ### References
