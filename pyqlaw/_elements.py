@@ -306,7 +306,7 @@ def kep2mee_with_a(oe_kep):
     return np.array([a,f,g,h,k,l])
 
 
-@njit
+#@njit
 def mee_with_a2sv(mee_with_a, mu):
     """Convert MEE with SMA to Cartesian states"""
     a,f,g,h,k,l = mee_with_a

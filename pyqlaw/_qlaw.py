@@ -72,7 +72,7 @@ class QLaw:
         oe_max (np.array): minimum values of elements for safe-guarding
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
-        duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
+        use_sundman (bool): whether to use Sundman transformation for propagation
 
     Attributes:
         print_frequency (int): if verbosity >= 2, prints at this frequency
@@ -96,10 +96,13 @@ class QLaw:
         oe_max=None,
         nan_angles_threshold=10,
         print_frequency=200,
-        duty_cycle = (1e16, 0.0),
-        use_sundman = False,
+        use_sundman=False,
     ):
         """Construct QLaw object"""
+        # assertions on inputs
+        assert elements_type in ["keplerian", "mee_with_a"], "elements_type must be either 'keplerian' or 'mee_with_a'"
+        assert integrator in ["rk4", "rkf45"], "integrator must be either 'rk4' or 'rkf45'"
+
         # dynamics
         self.mu = mu
 
@@ -167,10 +170,16 @@ class QLaw:
         self.step_min = 1e-4
         self.step_max = 2.0
         self.ode_tol = 1.e-5
-
-        # duty cycles
-        self.duty_cycle = duty_cycle
         self.use_sundman = use_sundman
+
+        # # duty cycles
+        # self.duty_cycle = duty_cycle
+
+        # # battery parameters
+        # self.battery_initial = battery_initial
+        # self.battery_capacity = battery_capacity
+        # self.battery_charge_discharge_rate = battery_charge_discharge_rate
+        # self.require_full_recharge = require_full_recharge
 
         # print frequency
         self.print_frequency = print_frequency  # print at (# of iteration) % self.print_frequency
@@ -189,10 +198,15 @@ class QLaw:
         mass0, 
         tmax, 
         mdot, 
-        tf_max, 
+        tf_max=100000.0, 
         t_step=0.1,
         mass_min=0.1,
         woe=None,
+        duty_cycle=(1e16,0.0),
+        battery_initial=1.0,
+        battery_capacity=(0.2,1.0),
+        battery_charge_discharge_rate=(0.2,0.01),
+        require_full_recharge=False,
     ):
         """Set transfer problem
         
@@ -205,8 +219,12 @@ class QLaw:
             tf_max (float): max time allocated to transfer
             t_step (float): initial time-step size to be used for integration
             mass_min (float): minimum mass
-            tol_oe (np.array): tolerances on osculating elements to check convergence
             woe (np.array): weight on each osculating element
+            duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
+            use_sundman (bool): whether to use Sundman transformation for propagation
+            battery_capacity (tuple): min and max battery capacity (min should be DOD)
+            battery_charge_discharge_rate (tuple): charge and discharge rate (both positive values)
+            require_full_recharge (bool): whether full recharge is required once DOD is reached
         """
         assert len(oe0)==6, "oe6 must have 6 components"
         assert mass_min >= 1e-2, "mass should be above 0.01 to avoid numerical difficulties"
@@ -231,7 +249,16 @@ class QLaw:
         self.tmax  = tmax
         self.mdot  = mdot
         self.mass_min = mass_min
-        self.ready = True  # toggle
+        self.ready = True               # toggle for solving
+
+        # duty cycles
+        self.duty_cycle = duty_cycle
+
+        # battery parameters
+        self.battery_initial = battery_initial
+        self.battery_capacity = battery_capacity
+        self.battery_charge_discharge_rate = battery_charge_discharge_rate
+        self.require_full_recharge = require_full_recharge
         return
 
 
@@ -252,12 +279,15 @@ class QLaw:
         t_iter = 0.0
         oe_iter = self.oe0
         mass_iter = self.mass0
+        battery_iter = self.battery_initial
 
         # initialize storage
         self.times = [t_iter,]
         self.states = [oe_iter,]
         self.masses = [mass_iter,]
         self.controls = []
+        self.etas = []
+        self.battery = [self.battery_initial,]
         n_relaxed_cleared = 0
         n_nan_angles = 0
 
@@ -265,10 +295,11 @@ class QLaw:
             self.disable_tqdm = True
             header = " iter   |  time      |  del1       |  del2       |  del3       |  del4       |  del5       |  el6        |"
 
-        # place-holder for handling duty cycle
+        # place-holder for handling duty cycle and battery level
         duty = True
         t_last_ON  = 0.0
         t_last_OFF = 0.0
+        charging = False
 
         # iterate until nmax
         idx = 0
@@ -312,6 +343,19 @@ class QLaw:
                 duty = True             # turn on duty cycle
                 t_last_ON = t_iter      # latest time when we turn on
 
+            # check battery state
+            if battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]:
+                duty = False                # turn off
+                t_last_OFF = t_iter         # latest time when we turn off
+                charging = True
+
+            # check if battery is full
+            if (self.require_full_recharge is True) and (charging is True) and\
+                (battery_iter < self.battery_capacity[1]):
+                duty = False                # turn off
+
+            # initialize efficiency parameters for storage
+            val_eta_a, val_eta_r = np.nan, np.nan
             if duty:
                 # evaluate Lyapunov function
                 alpha, beta, _, psi = lyapunov_control_angles(
@@ -456,6 +500,18 @@ class QLaw:
             self.states.append(oe_iter)
             self.masses.append(mass_iter)
             self.controls.append([alpha, beta, throttle])
+            self.etas.append([val_eta_a, val_eta_r])
+
+            # update battery
+            if duty:
+                battery_iter = np.clip(battery_iter-self.battery_charge_discharge_rate[1]*t_step_local,
+                                       self.battery_capacity[0], self.battery_capacity[1])
+            else:
+                battery_iter = np.clip(battery_iter+self.battery_charge_discharge_rate[0]*t_step_local,
+                                       self.battery_capacity[0], self.battery_capacity[1])
+                if battery_iter == self.battery_capacity[1]:
+                    charging = False        # turn OFF charging mode
+            self.battery.append(battery_iter)
 
             # index update
             idx += 1
@@ -584,7 +640,35 @@ class QLaw:
         return fig, ax
 
 
-    def plot_controls(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
+    def plot_battery_history(
+        self,
+        figsize=(9,5),
+        TU=1.0,
+        BU=1.0,
+        time_unit_name="TU",
+        battery_unit_name="BU"
+    ):
+        """Plot battery history
+        
+        Args:
+            figsize (tuple): figure size
+            TU (float): time unit
+            BU (float): battery unit
+            time_unit_name (str): name of time unit
+            battery_unit_name (str): name of battery unit
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
+        fig, ax = plt.subplots(1,1,figsize=figsize)
+        ax.plot(np.array(self.times)*TU, np.array(self.battery)*BU, color='k')
+        ax.axhline(np.array(self.battery_capacity[0])*BU, color='r', linestyle='--', label="min capacity")
+        ax.axhline(np.array(self.battery_capacity[1])*BU, color='g', linestyle='--', label="max capacity")
+        ax.set(xlabel=f"Time, {time_unit_name}", ylabel=f"Battery, {battery_unit_name}")
+        return fig, ax
+
+
+    def plot_controls(self, figsize=(9,5), TU=1.0, time_unit_name="TU"):
         """Plot control time history
         
         Args:
@@ -601,9 +685,9 @@ class QLaw:
             betas.append(control[1])
             throttles.append(control[2])
         fig, ax = plt.subplots(1,1,figsize=figsize)
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(alphas)*180/np.pi, marker='o', markersize=2, label="alpha")
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(betas)*180/np.pi,  marker='o', markersize=2, label="beta")
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(throttles)*100,  marker='o', markersize=2, label="throttle, %")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(alphas)*180/np.pi, where='pre', marker='o', markersize=2, label="alpha")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(betas)*180/np.pi, where='pre', marker='o', markersize=2, label="beta")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(throttles)*100, where='pre', marker='o', markersize=2, label="throttle, %")
         ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Control angles and throttle")
         ax.legend()
         return fig, ax
@@ -645,7 +729,7 @@ class QLaw:
                 if self.elements_type=="keplerian":
                     cart[:,idx] = kep2sv(self.states[idx], self.mu)
                 elif self.elements_type=="mee_with_a":
-                    cart[:,idx] = mee_with_a2sv(self.states[idx], self.mu)
+                    cart[:,idx] = mee_with_a2sv(np.array(self.states[idx]), self.mu)
         return cart
 
 
@@ -726,6 +810,25 @@ class QLaw:
         return fig, ax
 
 
+    def plot_efficiency(self, figsize=(6,6), TU=1.0, time_unit_name="TU"):
+        """Plot efficiency
+        
+        Args:
+            figsize (tuple): figure size
+            TU (float): time unit
+            time_unit_name (str): name of time unit
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
+        fig, ax = plt.subplots(1,1,figsize=figsize)
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,0], label="eta_a")
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,1], label="eta_r")
+        ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Efficiency")
+        ax.legend()
+        return fig, ax
+
+
     def pretty(self):
         """Pretty print"""
         print(f"Transfer:")
@@ -762,7 +865,7 @@ class QLaw:
         print(f"Exit at relaxed   : {self.exit_at_relaxed}")
         return
 
-    def save_to_dict(self, filepath, save_control_angles = False):
+    def save_to_dict(self, filepath, canonical_units=None, save_control_angles = False):
         """Export result into a dictionary, saved as json if filepath is provided
         
         Args:
@@ -772,6 +875,7 @@ class QLaw:
             "t0": 0.0,
             "tf": self.times[-1],
             "times": self.times,
+            "canonical_units": canonical_units,
             "states": [list(mee_with_a2mee(oe))+[m] for (oe,m) in zip(self.states, self.masses)],
         }
         _controls = copy.deepcopy(self.controls)
