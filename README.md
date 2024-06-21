@@ -1,9 +1,34 @@
 # pyqlaw
 Q-law feedback control for low-thrust orbital transfer in Python
 
+Capabilities:
+
+- Q-law formulated in Keplerian & SMA-MEE (MEE with semilatus rectum replaced by semimajor axis)
+- Coasting capabilities with efficiency parameters (c.f. Petropoulos, 2005)
+- Thrust duty cycles
+- Battery level tracking
+
+
 ### Dependencies
 
 - `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`
+
+### References
+
+Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
+In general, the following should be kept in mind:
+
+- For numerical stability, always work with canonical scales
+- Be very careful with initial/final orbits not to contain singular elements (e.g. inclination ~ 0 deg in Keplerian elements representation)
+- Q-law is not suitable for high control authority applications (e.g. interplanetary transfer with 0~very few revolutions)
+
+
+For more discussions, see for example: 
+
+- Petropoulos, A. E. (2004). Low-thrust orbit transfers using candidate Lyapunov functions with a mechanism for coasting. Collection of Technical Papers - AIAA/AAS Astrodynamics Specialist Conference, 2(August), 748–762. https://doi.org/10.2514/6.2004-5089
+- Petropoulos, A. E. (2005). Refinements to the Q-law for low-thrust orbit transfers. AAS/AIAA Space Flight Mechanics Meeting.
+- Hatten, N. (2012). A Critical Evaluation of Modern Low-Thrust, Feedback-Driven Spacecraft Control Laws.
+
 
 ### Basic usage
 

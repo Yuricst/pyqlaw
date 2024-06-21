@@ -73,6 +73,9 @@ class QLaw:
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
         duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
+        use_sundman (bool): whether to use Sundman transformation for propagation
+        battery_capacity (tuple): min and max battery capacity (min should be DOD)
+        battery_charge_discharge_rate (tuple): charge and discharge rate
 
     Attributes:
         print_frequency (int): if verbosity >= 2, prints at this frequency
@@ -98,6 +101,9 @@ class QLaw:
         print_frequency=200,
         duty_cycle = (1e16, 0.0),
         use_sundman = False,
+        battery_initial = 1.0,
+        battery_capacity = (0.2,1.0),
+        battery_charge_discharge_rate = (0.2, -0.01),
     ):
         """Construct QLaw object"""
         # dynamics
@@ -167,10 +173,15 @@ class QLaw:
         self.step_min = 1e-4
         self.step_max = 2.0
         self.ode_tol = 1.e-5
+        self.use_sundman = use_sundman
 
         # duty cycles
         self.duty_cycle = duty_cycle
-        self.use_sundman = use_sundman
+
+        # battery parameters
+        self.battery_initial = battery_initial
+        self.battery_capacity = battery_capacity
+        self.battery_charge_discharge_rate = battery_charge_discharge_rate
 
         # print frequency
         self.print_frequency = print_frequency  # print at (# of iteration) % self.print_frequency
@@ -252,6 +263,7 @@ class QLaw:
         t_iter = 0.0
         oe_iter = self.oe0
         mass_iter = self.mass0
+        battery_iter = self.battery_initial
 
         # initialize storage
         self.times = [t_iter,]
@@ -259,6 +271,7 @@ class QLaw:
         self.masses = [mass_iter,]
         self.controls = []
         self.etas = []
+        self.battery = [self.battery_initial,]
         n_relaxed_cleared = 0
         n_nan_angles = 0
 
@@ -312,6 +325,11 @@ class QLaw:
             if ((t_iter - t_last_OFF) > self.duty_cycle[1]) and (duty is False):
                 duty = True             # turn on duty cycle
                 t_last_ON = t_iter      # latest time when we turn on
+
+            # check battery state
+            if battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]:
+                duty = False                # turn off
+                t_last_OFF = t_iter         # latest time when we turn off
 
             # initialize efficiency parameters for storage
             val_eta_a, val_eta_r = np.nan, np.nan
@@ -461,6 +479,15 @@ class QLaw:
             self.controls.append([alpha, beta, throttle])
             self.etas.append([val_eta_a, val_eta_r])
 
+            # update battery
+            if duty:
+                battery_iter = np.clip(battery_iter-self.battery_charge_discharge_rate[1]*t_step_local,
+                                       self.battery_capacity[0], self.battery_capacity[1])
+            else:
+                battery_iter = np.clip(battery_iter+self.battery_charge_discharge_rate[0]*t_step_local,
+                                       self.battery_capacity[0], self.battery_capacity[1])
+            self.battery.append(battery_iter)
+
             # index update
             idx += 1
 
@@ -588,6 +615,25 @@ class QLaw:
         return fig, ax
 
 
+    def plot_battery_history(self, figsize=(6,4), TU=1.0, BU = 1.0, time_unit_name="TU"):
+        """Plot battery history
+        
+        Args:
+            figsize (tuple): figure size
+            TU (float): time unit
+            time_unit_name (str): name of time unit
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
+        fig, ax = plt.subplots(1,1,figsize=figsize)
+        ax.plot(np.array(self.times)*TU, np.array(self.battery)*BU, color='k')
+        ax.axhline(np.array(self.battery_capacity[0])*BU, color='r', linestyle='--', label="min capacity")
+        ax.axhline(np.array(self.battery_capacity[1])*BU, color='g', linestyle='--', label="max capacity")
+        ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Battery")
+        return fig, ax
+
+
     def plot_controls(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
         """Plot control time history
         
@@ -605,9 +651,9 @@ class QLaw:
             betas.append(control[1])
             throttles.append(control[2])
         fig, ax = plt.subplots(1,1,figsize=figsize)
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(alphas)*180/np.pi, marker='o', markersize=2, label="alpha")
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(betas)*180/np.pi,  marker='o', markersize=2, label="beta")
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(throttles)*100,  marker='o', markersize=2, label="throttle, %")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(alphas)*180/np.pi, where='pre', marker='o', markersize=2, label="alpha")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(betas)*180/np.pi, where='pre', marker='o', markersize=2, label="beta")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(throttles)*100, where='pre', marker='o', markersize=2, label="throttle, %")
         ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Control angles and throttle")
         ax.legend()
         return fig, ax
