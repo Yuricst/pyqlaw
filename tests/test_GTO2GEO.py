@@ -22,6 +22,7 @@ def test_object():
         elements_type="mee_with_a",
         verbosity=2,
         print_frequency=3000,
+        use_sundman = True,
     )
     # initial and final elements: [a,e,i,RAAN,omega,ta]
     KEP0 = [0.578004933118300,0.730089040252759,0.401425727958696,1.745329251994330,4.712388980384690,0.401425727958696]
@@ -37,14 +38,14 @@ def test_object():
     tmax = 0.0149
     mdot = 0.0031
     tf_max = 10000.0
-    t_step = 0.05
+    t_step = np.deg2rad(10)
 
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
     prob.pretty()
 
     # solve
-    prob.solve(eta_a=0.0, eta_r=0.0)
+    prob.solve(eta_a=0.1, eta_r=0.1)
     prob.pretty_results()
     tend = time.time()
     print(f"Simulation took {tend-tstart:4.4f} seconds")
@@ -53,6 +54,7 @@ def test_object():
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True)
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
+    fig4, ax4 = prob.plot_efficiency()
 
     # export state history as initial guess for ICLOCS2
     prob.save_to_dict('initial_guess_GTO2GEO.json')

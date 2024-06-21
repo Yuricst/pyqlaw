@@ -258,6 +258,7 @@ class QLaw:
         self.states = [oe_iter,]
         self.masses = [mass_iter,]
         self.controls = []
+        self.etas = []
         n_relaxed_cleared = 0
         n_nan_angles = 0
 
@@ -312,6 +313,8 @@ class QLaw:
                 duty = True             # turn on duty cycle
                 t_last_ON = t_iter      # latest time when we turn on
 
+            # initialize efficiency parameters for storage
+            val_eta_a, val_eta_r = np.nan, np.nan
             if duty:
                 # evaluate Lyapunov function
                 alpha, beta, _, psi = lyapunov_control_angles(
@@ -456,6 +459,7 @@ class QLaw:
             self.states.append(oe_iter)
             self.masses.append(mass_iter)
             self.controls.append([alpha, beta, throttle])
+            self.etas.append([val_eta_a, val_eta_r])
 
             # index update
             idx += 1
@@ -645,7 +649,7 @@ class QLaw:
                 if self.elements_type=="keplerian":
                     cart[:,idx] = kep2sv(self.states[idx], self.mu)
                 elif self.elements_type=="mee_with_a":
-                    cart[:,idx] = mee_with_a2sv(self.states[idx], self.mu)
+                    cart[:,idx] = mee_with_a2sv(np.array(self.states[idx]), self.mu)
         return cart
 
 
@@ -723,6 +727,25 @@ class QLaw:
 
         #ax.set_aspect('equal')
         ax.set(xlabel="x", ylabel="y", zlabel="z")
+        return fig, ax
+
+
+    def plot_efficiency(self, figsize=(6,6), TU=1.0, time_unit_name="TU"):
+        """Plot efficiency
+        
+        Args:
+            figsize (tuple): figure size
+            TU (float): time unit
+            time_unit_name (str): name of time unit
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
+        fig, ax = plt.subplots(1,1,figsize=figsize)
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,0], label="eta_a")
+        ax.plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,1], label="eta_r")
+        ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Efficiency")
+        ax.legend()
         return fig, ax
 
 

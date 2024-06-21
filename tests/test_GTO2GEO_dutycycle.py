@@ -87,7 +87,7 @@ def test_object():
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True, TU=TU/86400, time_unit_name="day")
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=6378/LU, lw=0.1, interpolate=False)
     fig3, ax3 = prob.plot_controls(TU=TU/86400, time_unit_name="day")
-    
+
     print(f"oe0 = {oe0}")
     print(f"oeT = {oeT}")
     return fig1, fig2, fig3
