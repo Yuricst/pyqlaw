@@ -12,14 +12,7 @@ def check_convergence(oe, oeT, woe, tol_oe):
     """Check convergence between oe and oeT"""
     check_array = np.zeros(5,) # np.array([1 if el == 0.0 else 0 for el in woe])
     doe = np.abs(oeT[0:5] - oe[0:5])  # FIXME is this ok? or should we be careful for angles?
-    # check for each element
-    for idx in range(5):
-        if woe[idx] > 0.0:
-            if doe[idx] < tol_oe[idx]:
-                check_array[idx] = 1
-        # if we don't care about the idx^th element, we just say it is converged
-        else:
-            check_array[idx] = 1
+    check_array = doe < tol_oe
 
     if np.sum(check_array)==5:
         return True

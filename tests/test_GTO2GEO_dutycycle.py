@@ -71,7 +71,7 @@ def test_object():
     tmax = tmax_si * (1/MU)*(TU**2/(1e3*LU))
     mdot = np.abs(mdot_si) *(TU/MU)
     tf_max = 10000.0
-    t_step = np.deg2rad(15)
+    t_step = np.deg2rad(5)
 
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
