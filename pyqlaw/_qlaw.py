@@ -10,7 +10,8 @@ from scipy.interpolate import interp1d
 
 from ._symbolic import symbolic_qlaw_keplerian, symbolic_qlaw_mee_with_a
 from ._lyapunov import lyapunov_control_angles
-from ._integrate import eom_kep_gauss, eom_mee_gauss, eom_mee_with_a_gauss, rk4, rkf45
+from ._eom import eom_kep_gauss, eom_mee_gauss, eom_mee_with_a_gauss
+from ._integrate import rk4, rkf45
 from ._convergence import check_convergence, elements_safety
 from ._elements import (
     kep2sv,
@@ -435,7 +436,7 @@ class QLaw:
                 #print(f"throttle = {throttle}")
 
             # ODE parameters
-            ode_params = (self.mu, u, psi[0], psi[1], psi[2])
+            ode_params = (self.mu, u, psi[0], psi[1], psi[2])  # control fixed in RTN for step
             if self.integrator == "rk4":
                 oe_next = rk4(
                     self.eom, 
@@ -604,22 +605,32 @@ class QLaw:
             (tuple): figure and axis objects
         """
         oes = np.zeros((6,len(self.times)))
+        fig, axs = plt.subplots(2,3,figsize=figsize)
         for idx in range(len(self.times)):
             if to_keplerian == True and self.elements_type=="mee_with_a":
                 oes[:,idx] = mee_with_a2kep(self.states[idx])
                 labels = ["a", "e", "i", "raan", "om", "ta"]
                 multipliers = [1,1,180/np.pi,180/np.pi,180/np.pi,180/np.pi]
                 oe_T = mee_with_a2kep(np.concatenate((self.oeT,[0.0])))[0:5]
+                show_band = False
             else:
                 oes[:,idx] = self.states[idx]
                 labels = self.element_names
                 multipliers = [1,1,1,1,1,1]
                 oe_T = self.oeT
+                show_band = True
 
-        fig, axs = plt.subplots(2,3,figsize=figsize)
         for idx,ax in enumerate(axs.flatten()[:5]):
-            # target
-            ax.axhline(oe_T[idx]*multipliers[idx], color='r', linestyle='--')
+            # targeted elements
+            if show_band:
+                ax.fill_between(
+                    np.array(self.times)*TU, 
+                    (oe_T[idx]-self.tol_oe[idx])*multipliers[idx], 
+                    (oe_T[idx]+self.tol_oe[idx])*multipliers[idx], 
+                    color='red', alpha=0.25
+                )
+            else:
+                ax.axhline(oe_T[idx]*multipliers[idx], color='r', linestyle='--')
 
             # state history
             ax.plot(np.array(self.times)*TU, oes[idx,:]*multipliers[idx], label=labels[idx])

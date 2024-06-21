@@ -7,9 +7,11 @@ from ._symbolic import (
     symbolic_qlaw_keplerian,
     symbolic_qlaw_mee_with_a,
 )
-from ._integrate import (
+from ._eom import (
     eom_kep_gauss, 
     eom_mee_with_a_gauss,
+)
+from ._integrate import (
     rk4, 
     rkf45,
 )
