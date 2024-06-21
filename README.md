@@ -4,7 +4,7 @@ Q-law feedback control for low-thrust orbital transfer in Python
 Capabilities:
 
 - Q-law formulated in Keplerian & SMA-MEE (MEE with semilatus rectum replaced by semimajor axis)
-- Coasting capabilities with efficiency parameters (c.f. Petropoulos, 2005)
+- Coasting capabilities with efficiency parameters [3]
 - Thrust duty cycles
 - Battery level tracking
 
@@ -136,4 +136,6 @@ fig2, ax2 = prob.plot_trajectory_3d()
 
 [5] Leomanni, M., Bianchini, G., Garulli, A., Quartullo, R., & Scortecci, F. (2021). Optimal Low-Thrust Orbit Transfers Made Easy: A Direct Approach. Journal of Spacecraft and Rockets, 1–11. https://doi.org/10.2514/1.a34949
 
-[6] [Modified Equinoctial Elements](https://spsweb.fltops.jpl.nasa.gov/portaldataops/mpg/MPG_Docs/Source%20Docs/EquinoctalElements-modified.pdf)
+[6] [Modified Equinoctial Elements (careful with typos in this document!)](https://spsweb.fltops.jpl.nasa.gov/portaldataops/mpg/MPG_Docs/Source%20Docs/EquinoctalElements-modified.pdf)
+
+[7] Hatten, N. (2012). A Critical Evaluation of Modern Low-Thrust, Feedback-Driven Spacecraft Control Laws.
