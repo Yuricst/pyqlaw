@@ -296,10 +296,11 @@ class QLaw:
             self.disable_tqdm = True
             header = " iter   |  time      |  del1       |  del2       |  del3       |  del4       |  del5       |  el6        |"
 
-        # place-holder for handling duty cycle
+        # place-holder for handling duty cycle and battery level
         duty = True
         t_last_ON  = 0.0
         t_last_OFF = 0.0
+        charging = False
 
         # iterate until nmax
         idx = 0
@@ -347,6 +348,12 @@ class QLaw:
             if battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]:
                 duty = False                # turn off
                 t_last_OFF = t_iter         # latest time when we turn off
+                charging = True
+
+            # check if battery is full
+            if (self.require_full_recharge is True) and (charging is True) and\
+                (battery_iter < self.battery_capacity[1]):
+                duty = False                # turn off
 
             # initialize efficiency parameters for storage
             val_eta_a, val_eta_r = np.nan, np.nan
@@ -503,6 +510,8 @@ class QLaw:
             else:
                 battery_iter = np.clip(battery_iter+self.battery_charge_discharge_rate[0]*t_step_local,
                                        self.battery_capacity[0], self.battery_capacity[1])
+                if battery_iter == self.battery_capacity[1]:
+                    charging = False        # turn OFF charging mode
             self.battery.append(battery_iter)
 
             # index update
