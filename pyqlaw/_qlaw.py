@@ -219,13 +219,12 @@ class QLaw:
             tf_max (float): max time allocated to transfer
             t_step (float): initial time-step size to be used for integration
             mass_min (float): minimum mass
-            tol_oe (np.array): tolerances on osculating elements to check convergence
+            woe (np.array): weight on each osculating element
             duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
             use_sundman (bool): whether to use Sundman transformation for propagation
             battery_capacity (tuple): min and max battery capacity (min should be DOD)
             battery_charge_discharge_rate (tuple): charge and discharge rate (both positive values)
             require_full_recharge (bool): whether full recharge is required once DOD is reached
-            woe (np.array): weight on each osculating element
         """
         assert len(oe0)==6, "oe6 must have 6 components"
         assert mass_min >= 1e-2, "mass should be above 0.01 to avoid numerical difficulties"
@@ -641,13 +640,22 @@ class QLaw:
         return fig, ax
 
 
-    def plot_battery_history(self, figsize=(6,4), TU=1.0, BU = 1.0, time_unit_name="TU"):
+    def plot_battery_history(
+        self,
+        figsize=(9,5),
+        TU=1.0,
+        BU=1.0,
+        time_unit_name="TU",
+        battery_unit_name="BU"
+    ):
         """Plot battery history
         
         Args:
             figsize (tuple): figure size
             TU (float): time unit
+            BU (float): battery unit
             time_unit_name (str): name of time unit
+            battery_unit_name (str): name of battery unit
         
         Returns:
             (tuple): figure and axis objects
@@ -656,11 +664,11 @@ class QLaw:
         ax.plot(np.array(self.times)*TU, np.array(self.battery)*BU, color='k')
         ax.axhline(np.array(self.battery_capacity[0])*BU, color='r', linestyle='--', label="min capacity")
         ax.axhline(np.array(self.battery_capacity[1])*BU, color='g', linestyle='--', label="max capacity")
-        ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Battery")
+        ax.set(xlabel=f"Time, {time_unit_name}", ylabel=f"Battery, {battery_unit_name}")
         return fig, ax
 
 
-    def plot_controls(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
+    def plot_controls(self, figsize=(9,5), TU=1.0, time_unit_name="TU"):
         """Plot control time history
         
         Args:

@@ -21,24 +21,30 @@ def test_object():
     GM_EARTH = 398600.44
     VU = np.sqrt(GM_EARTH/LU)
     TU = LU/VU
-    
-    # initial and final elements: [a,e,i,RAAN,omega,ta]
-    KEP0 = [0.578004933118300,0.730089040252759,0.401425727958696,1.745329251994330,4.712388980384690,0.401425727958696]
-    KEPF = [1,0,0,1.780235837034216,0.593411945678072,0.087266462599716]
+
+    rp_gto = 200 + 6378
+    ra_gto = 35786 + 6378
+    sma_gto = (rp_gto + ra_gto)/(2*LU)
+    ecc_gto = (ra_gto - rp_gto)/(ra_gto + rp_gto)
+    KEP0 = [sma_gto,ecc_gto,np.deg2rad(23),0,0,0]
+    KEPF = [1,0,np.deg2rad(3),0,0,0]
     oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
     oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
-    print(f"oe0: {oe0}")
-    print(f"oeT: {oeT}")
-    
     woe = [1.0, 1.0, 1.0, 1.0, 1.0]
 
     # spacecraft parameters
-    mass0 = 1.0
-    tmax = 0.0149
-    mdot = 0.0031
-    tf_max = 10000.0
-    t_step = np.deg2rad(5)
+    MU = 1500
+    tmax_si = 0.1   # 100 mN
+    isp_si  = 1455   # seconds
+    mdot_si = tmax_si/(isp_si*9.81)  # kg/s
 
+    # non-dimensional quantities
+    mass0 = 1.0
+    tmax = tmax_si * (1/MU)*(TU**2/(1e3*LU))
+    mdot = np.abs(mdot_si) *(TU/MU)
+    tf_max = 10000.0
+    t_step = np.deg2rad(15)
+    
     # battery levels
     battery_initial = 3000*3600/TU            # Wh --> Ws --> W.TU
     battery_capacity = (500,battery_initial)
@@ -64,7 +70,7 @@ def test_object():
         require_full_recharge = require_full_recharge,
         woe = woe)
     prob.pretty()
-    
+
     # solve
     tstart_solve = time.time()
     prob.solve(eta_a=0.0, eta_r=0.0)
@@ -77,7 +83,8 @@ def test_object():
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True, TU=TU/86400, time_unit_name="day")
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
-    fig4, ax4 = prob.plot_battery_history(TU=TU/86400, BU=TU/3600, time_unit_name="day")
+    fig4, ax4 = prob.plot_battery_history(TU=TU/86400, BU=TU/3600,
+        time_unit_name="day", battery_unit_name="Wh")
     return fig1, fig2, fig3
 
 

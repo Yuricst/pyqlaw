@@ -43,7 +43,7 @@ def test_object():
     else:
         oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
         oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
-        woe = [3.0, 1.0, 1.0, 1.0, 1.0]
+        woe = [1.0, 1.0, 1.0, 1.0, 1.0]
 
     # duty cycles
     duty_cycle = (0.85*86400/TU, 0.15*86400/TU)
