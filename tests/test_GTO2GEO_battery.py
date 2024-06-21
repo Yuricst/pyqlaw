@@ -45,6 +45,7 @@ def test_object():
     charge_rate = 1500
     discharge_rate = 500
     battery_charge_discharge_rate = (charge_rate, discharge_rate)
+    require_full_recharge = True
 
     # construct problem
     prob = pyqlaw.QLaw(
@@ -53,15 +54,17 @@ def test_object():
         verbosity=2,
         print_frequency=500,
         use_sundman = True,
-        battery_initial = battery_initial,
-        battery_capacity = battery_capacity,
-        battery_charge_discharge_rate = battery_charge_discharge_rate,
     )
 
     # set problem
-    prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
+    prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step,
+        battery_initial = battery_initial,
+        battery_capacity = battery_capacity,
+        battery_charge_discharge_rate = battery_charge_discharge_rate,
+        require_full_recharge = require_full_recharge,
+        woe = woe)
     prob.pretty()
-
+    
     # solve
     tstart_solve = time.time()
     prob.solve(eta_a=0.0, eta_r=0.0)

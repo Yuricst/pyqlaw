@@ -56,7 +56,6 @@ def test_object():
         elements_type=elements_type,
         verbosity=2,
         print_frequency=3000,
-        duty_cycle = duty_cycle,
         use_sundman = True,
     )
 
@@ -74,7 +73,8 @@ def test_object():
     t_step = np.deg2rad(15)
 
     # set problem
-    prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
+    prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, 
+        duty_cycle = duty_cycle, woe=woe)
     prob.pretty()
 
     # solve

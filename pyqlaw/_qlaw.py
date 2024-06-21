@@ -72,10 +72,7 @@ class QLaw:
         oe_max (np.array): minimum values of elements for safe-guarding
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
-        duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
         use_sundman (bool): whether to use Sundman transformation for propagation
-        battery_capacity (tuple): min and max battery capacity (min should be DOD)
-        battery_charge_discharge_rate (tuple): charge and discharge rate
 
     Attributes:
         print_frequency (int): if verbosity >= 2, prints at this frequency
@@ -99,13 +96,13 @@ class QLaw:
         oe_max=None,
         nan_angles_threshold=10,
         print_frequency=200,
-        duty_cycle = (1e16, 0.0),
-        use_sundman = False,
-        battery_initial = 1.0,
-        battery_capacity = (0.2,1.0),
-        battery_charge_discharge_rate = (0.2, -0.01),
+        use_sundman=False,
     ):
         """Construct QLaw object"""
+        # assertions on inputs
+        assert elements_type in ["keplerian", "mee_with_a"], "elements_type must be either 'keplerian' or 'mee_with_a'"
+        assert integrator in ["rk4", "rkf45"], "integrator must be either 'rk4' or 'rkf45'"
+
         # dynamics
         self.mu = mu
 
@@ -175,13 +172,14 @@ class QLaw:
         self.ode_tol = 1.e-5
         self.use_sundman = use_sundman
 
-        # duty cycles
-        self.duty_cycle = duty_cycle
+        # # duty cycles
+        # self.duty_cycle = duty_cycle
 
-        # battery parameters
-        self.battery_initial = battery_initial
-        self.battery_capacity = battery_capacity
-        self.battery_charge_discharge_rate = battery_charge_discharge_rate
+        # # battery parameters
+        # self.battery_initial = battery_initial
+        # self.battery_capacity = battery_capacity
+        # self.battery_charge_discharge_rate = battery_charge_discharge_rate
+        # self.require_full_recharge = require_full_recharge
 
         # print frequency
         self.print_frequency = print_frequency  # print at (# of iteration) % self.print_frequency
@@ -200,10 +198,15 @@ class QLaw:
         mass0, 
         tmax, 
         mdot, 
-        tf_max, 
+        tf_max=100000.0, 
         t_step=0.1,
         mass_min=0.1,
         woe=None,
+        duty_cycle=(1e16,0.0),
+        battery_initial=1.0,
+        battery_capacity=(0.2,1.0),
+        battery_charge_discharge_rate=(0.2,0.01),
+        require_full_recharge=False,
     ):
         """Set transfer problem
         
@@ -217,6 +220,11 @@ class QLaw:
             t_step (float): initial time-step size to be used for integration
             mass_min (float): minimum mass
             tol_oe (np.array): tolerances on osculating elements to check convergence
+            duty_cycle (tuple): ON and OFF times for duty cycle, default is (1e16, 0.0)
+            use_sundman (bool): whether to use Sundman transformation for propagation
+            battery_capacity (tuple): min and max battery capacity (min should be DOD)
+            battery_charge_discharge_rate (tuple): charge and discharge rate (both positive values)
+            require_full_recharge (bool): whether full recharge is required once DOD is reached
             woe (np.array): weight on each osculating element
         """
         assert len(oe0)==6, "oe6 must have 6 components"
@@ -242,7 +250,16 @@ class QLaw:
         self.tmax  = tmax
         self.mdot  = mdot
         self.mass_min = mass_min
-        self.ready = True  # toggle
+        self.ready = True               # toggle for solving
+
+        # duty cycles
+        self.duty_cycle = duty_cycle
+
+        # battery parameters
+        self.battery_initial = battery_initial
+        self.battery_capacity = battery_capacity
+        self.battery_charge_discharge_rate = battery_charge_discharge_rate
+        self.require_full_recharge = require_full_recharge
         return
 
 
