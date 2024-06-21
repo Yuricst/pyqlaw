@@ -15,12 +15,6 @@ import pyqlaw
 
 def test_object():
     tstart = time.time()
-    
-    use_keplerian = False
-    if use_keplerian:
-        elements_type = "keplerian"
-    else:
-        elements_type = "mee_with_a"
 
     # initial and final elements: [a,e,i,RAAN,omega,ta]
     LU = 42164.0
@@ -34,30 +28,9 @@ def test_object():
     ecc_gto = (ra_gto - rp_gto)/(ra_gto + rp_gto)
     KEP0 = [sma_gto,ecc_gto,np.deg2rad(23),0,0,0]
     KEPF = [1,0,np.deg2rad(3),0,0,0]
-
-    if use_keplerian:
-        element_min = 1e-2
-        oe0 = np.clip(np.array(KEP0), element_min, 100.0)
-        oeT = np.clip(np.array(KEPF), element_min, 100.0)
-        woe = [1.0, 1.0, 1.0, 1e-2, 1e-2]
-    else:
-        oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
-        oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
-        woe = [1.0, 1.0, 1.0, 1.0, 1.0]
-
-    # duty cycles
-    duty_cycle = (0.85*86400/TU, 0.15*86400/TU)
-    print(f"duty_cycle = {duty_cycle}")
-
-    # construct problem
-    prob = pyqlaw.QLaw(
-        rpmin = 6578/LU,
-        integrator="rk4", 
-        elements_type=elements_type,
-        verbosity=2,
-        print_frequency=3000,
-        use_sundman = True,
-    )
+    oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
+    oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
+    woe = [1.0, 1.0, 1.0, 1.0, 1.0]
 
     # spacecraft parameters
     MU = 1500
@@ -70,26 +43,48 @@ def test_object():
     tmax = tmax_si * (1/MU)*(TU**2/(1e3*LU))
     mdot = np.abs(mdot_si) *(TU/MU)
     tf_max = 10000.0
-    t_step = np.deg2rad(5)
+    t_step = np.deg2rad(15)
+    
+    # battery levels
+    battery_initial = 3000*3600/TU            # Wh --> Ws --> W.TU
+    battery_capacity = (500,battery_initial)
+    charge_rate = 1500
+    discharge_rate = 500
+    battery_charge_discharge_rate = (charge_rate, discharge_rate)
+    require_full_recharge = True
+
+    # construct problem
+    prob = pyqlaw.QLaw(
+        integrator="rk4", 
+        elements_type="mee_with_a",
+        verbosity=2,
+        print_frequency=500,
+        use_sundman = True,
+    )
 
     # set problem
-    prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, 
-        duty_cycle = duty_cycle, woe=woe)
+    prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step,
+        battery_initial = battery_initial,
+        battery_capacity = battery_capacity,
+        battery_charge_discharge_rate = battery_charge_discharge_rate,
+        require_full_recharge = require_full_recharge,
+        woe = woe)
     prob.pretty()
 
     # solve
+    tstart_solve = time.time()
     prob.solve(eta_a=0.0, eta_r=0.0)
     prob.pretty_results()
     tend = time.time()
     print(f"Simulation took {tend-tstart:4.4f} seconds")
+    print(f"prob.solve took {tend-tstart_solve:4.4f} seconds")
 
     # plot
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True, TU=TU/86400, time_unit_name="day")
-    fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=6378/LU, lw=0.1, interpolate=False)
-    fig3, ax3 = prob.plot_controls(TU=TU/86400, time_unit_name="day")
-
-    print(f"oe0 = {oe0}")
-    print(f"oeT = {oeT}")
+    fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
+    fig3, ax3 = prob.plot_controls()
+    fig4, ax4 = prob.plot_battery_history(TU=TU/86400, BU=TU/3600,
+        time_unit_name="day", battery_unit_name="Wh")
     return fig1, fig2, fig3
 
 

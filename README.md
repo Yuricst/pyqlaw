@@ -1,9 +1,36 @@
 # pyqlaw
 Q-law feedback control for low-thrust orbital transfer in Python
 
+Capabilities:
+
+- Q-law formulated in Keplerian & SMA-MEE (MEE with semilatus rectum replaced by semimajor axis)
+- Coasting capabilities with efficiency parameters [3]
+- Thrust duty cycles
+- Battery level tracking
+
+
 ### Dependencies
 
-- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `dill`
+- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`
+
+
+### References
+
+Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
+In general, the following should be kept in mind:
+
+- For numerical stability, always work with canonical scales.
+- Be very careful with initial/final orbits not to contain singular elements (e.g. inclination ~ 0 deg in Keplerian elements representation).
+- Q-law is not suitable for high control authority applications (e.g. interplanetary transfer with 0~very few revolutions).
+- Taking larger integration time steps `t_step` (or angle steps, if `use_sundman = True`) makes the algorithm ``faster'' (less time until reaching the targeted elements), but may also lead to instability/high jitter once the spacecraft is close to the target; an appropriate value must be found on a problem-to-problem basis.
+
+
+For more discussions, see for example: 
+
+- Petropoulos, A. E. (2004). Low-thrust orbit transfers using candidate Lyapunov functions with a mechanism for coasting. Collection of Technical Papers - AIAA/AAS Astrodynamics Specialist Conference, 2(August), 748–762. https://doi.org/10.2514/6.2004-5089
+- Petropoulos, A. E. (2005). Refinements to the Q-law for low-thrust orbit transfers. AAS/AIAA Space Flight Mechanics Meeting.
+- Hatten, N. (2012). A Critical Evaluation of Modern Low-Thrust, Feedback-Driven Spacecraft Control Laws.
+
 
 ### Basic usage
 
@@ -88,17 +115,6 @@ fig2, ax2 = prob.plot_trajectory_3d()
 </p>
 
 
-### To-dos
-- [x] Effectivity for coasting
-- [x] Version using MEE (See [4-6])
-- [ ] Robustify numerical unstability
-
-
-### Some things to be careful!
-
-- Gauss's equation in terms of Keplerian elements is particularly unstable when eccentricity (e) and inclination (i) approach 0
-
-
 ### References
 
 [1] Petropoulos, A. E. (2003). Simple Control Laws for Low-Thrust Orbit Transfers. AAS Astrodynamics Specialists Conference.
@@ -111,4 +127,6 @@ fig2, ax2 = prob.plot_trajectory_3d()
 
 [5] Leomanni, M., Bianchini, G., Garulli, A., Quartullo, R., & Scortecci, F. (2021). Optimal Low-Thrust Orbit Transfers Made Easy: A Direct Approach. Journal of Spacecraft and Rockets, 1–11. https://doi.org/10.2514/1.a34949
 
-[6] [Modified Equinoctial Elements](https://spsweb.fltops.jpl.nasa.gov/portaldataops/mpg/MPG_Docs/Source%20Docs/EquinoctalElements-modified.pdf)
+[6] [Modified Equinoctial Elements (careful with typos in this document!)](https://spsweb.fltops.jpl.nasa.gov/portaldataops/mpg/MPG_Docs/Source%20Docs/EquinoctalElements-modified.pdf)
+
+[7] Hatten, N. (2012). A Critical Evaluation of Modern Low-Thrust, Feedback-Driven Spacecraft Control Laws.
