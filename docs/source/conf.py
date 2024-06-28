@@ -18,8 +18,9 @@ sys.path.append('../') #0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'pyqlaw'
-copyright = '2022, ssog'
-author = 'ssog'
+copyright = '2024, Yuricst'
+author = 'Yuricst'
+release = '0.1.0'
 
 
 # -- General configuration ---------------------------------------------------
