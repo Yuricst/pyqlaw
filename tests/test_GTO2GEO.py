@@ -31,27 +31,27 @@ def test_object():
     oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
     print(f"oe0: {oe0}")
     print(f"oeT: {oeT}")
-    
-    woe = [1.0, 1.0, 1.0, 1.0, 1.0]
+    woe = [3.0, 1.0, 1.0, 1.0, 1.0]
+
     # spacecraft parameters
     mass0 = 1.0
     tmax = 0.0149
     mdot = 0.0031
     tf_max = 10000.0
-    t_step = np.deg2rad(10)
+    t_step = np.deg2rad(5)
 
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
     prob.pretty()
-
+    
     # solve
-    prob.solve(eta_a=0.1, eta_r=0.1)
+    prob.solve(eta_a=0.2, eta_r=0.3)
     prob.pretty_results()
     tend = time.time()
     print(f"Simulation took {tend-tstart:4.4f} seconds")
 
     # plot
-    fig1, ax1 = prob.plot_elements_history(to_keplerian=True)
+    fig1, ax1 = prob.plot_elements_history(to_keplerian=False)
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
     fig4, ax4 = prob.plot_efficiency()
