@@ -265,16 +265,27 @@ class QLaw:
 
     def solve(self, eta_a=0.0, eta_r=0.0):
         """Propagate and solve control problem
+
+        Efficiency thresholds `eta_a` and `eta_r` may be given either as constant floats or as callables.
+        If providing callables, the required signatures are:
+
+        -   `eta_a(t, oe, mass, battery) -> eta_a_value::float`
+        -   `eta_r(t, oe, mass, battery) -> eta_r_value::float`
         
         Args:
-            eta_a (float): min absolute effectivity to thrust, `0.0 <= eta_a <= 1.0`
-            eta_r (float): relative effectivity, `0.0 <= eta_r <= 1.0`
+            eta_a (float or callable): min absolute effectivity to thrust
+            eta_r (float or callable): relative effectivity, `0.0 <= eta_r <= 1.0`
         """
         assert self.ready == True, "Please first call `set_problem()`"
 
-        # efficiency thresholds
-        self.eta_a = eta_a
-        self.eta_r = eta_r
+        if isinstance(eta_a, float):
+            # `eta_a` is a float
+            pass
+        elif callable(eta_a):
+            # `eta_a` is a callable function
+            pass
+        else:
+            raise ValueError("Invalid type for `eta_a`. Expected float or callable function.")
 
         # initialize values for propagation
         t_iter = 0.0
@@ -288,6 +299,7 @@ class QLaw:
         self.masses = [mass_iter,]
         self.controls = []
         self.etas = []
+        self.etas_bounds = []
         self.battery = [self.battery_initial,]
         n_relaxed_cleared = 0
         n_nan_angles = 0
@@ -357,6 +369,7 @@ class QLaw:
 
             # initialize efficiency parameters for storage
             val_eta_a, val_eta_r = np.nan, np.nan
+            eta_a_current, eta_r_current = np.nan, np.nan
             if duty:
                 # evaluate Lyapunov function
                 alpha, beta, _, psi = lyapunov_control_angles(
@@ -394,8 +407,19 @@ class QLaw:
                         np.sin(beta),
                     ])
 
+                    # compute effectivity thresholds
+                    if isinstance(eta_a, float):        # `eta_a` is a float
+                        eta_a_current = eta_a
+                    elif callable(eta_a):               # `eta_a` is a callable function
+                        eta_a_current = eta_a(t_iter, oe_iter, mass_iter, battery_iter)
+
+                    if isinstance(eta_r, float):        # `eta_r` is a float
+                        eta_r_current = eta_r
+                    elif callable(eta_r):               # `eta_r` is a callable function
+                        eta_r_current = eta_r(t_iter, oe_iter, mass_iter, battery_iter)
+
                     # check effectivity to decide whether to thrust or coast
-                    if self.eta_r > 0 or self.eta_a > 0:
+                    if eta_r_current > 0 or eta_a_current > 0:
                         qdot_current = self.dqdt_fun(
                             self.mu, 
                             accel_thrust, 
@@ -411,7 +435,7 @@ class QLaw:
                         val_eta_a = qdot_current/qdot_min
                         val_eta_r = (qdot_current - qdot_max)/(qdot_min - qdot_max)
                         # turn thrust off if below threshold
-                        if val_eta_a < self.eta_a or val_eta_r < self.eta_r:
+                        if val_eta_a < eta_a_current or val_eta_r < eta_r_current:
                             throttle = 0  # turn off
                             u = np.zeros((3,))
             else:
@@ -502,6 +526,7 @@ class QLaw:
             self.masses.append(mass_iter)
             self.controls.append([alpha, beta, throttle])
             self.etas.append([val_eta_a, val_eta_r])
+            self.etas_bounds.append([eta_a_current, eta_r_current])
 
             # update battery
             if duty:
@@ -821,7 +846,7 @@ class QLaw:
         return fig, ax
 
 
-    def plot_efficiency(self, figsize=(6,6), TU=1.0, time_unit_name="TU"):
+    def plot_efficiency(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
         """Plot efficiency
         
         Args:
@@ -832,11 +857,17 @@ class QLaw:
         Returns:
             (tuple): figure and axis objects
         """
-        fig, ax = plt.subplots(1,1,figsize=figsize)
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,0], label="eta_a")
-        ax.plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,1], label="eta_r")
-        ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Efficiency")
-        ax.legend()
+        fig, axs = plt.subplots(2,1,figsize=figsize)
+        axs[0].plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,0], label="eta_a")
+        axs[0].plot(np.array(self.times[0:-1])*TU, np.array(self.etas_bounds)[:,0], label="eta_a_min", linestyle='-', color='red')
+        axs[0].set(xlabel=f"Time, {time_unit_name}", ylabel="Absolute efficiency")
+
+        axs[1].plot(np.array(self.times[0:-1])*TU, np.array(self.etas)[:,1], label="eta_r")
+        axs[1].plot(np.array(self.times[0:-1])*TU, np.array(self.etas_bounds)[:,1], label="eta_r_min", linestyle='-', color='red')
+        axs[1].set(xlabel=f"Time, {time_unit_name}", ylabel="Relative efficiency")
+        for ax in axs:
+            ax.legend()
+        plt.tight_layout()
         return fig, ax
 
 
