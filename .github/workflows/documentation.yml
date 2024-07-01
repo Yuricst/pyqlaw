@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Install dependencies
         run: |
-          pip install sphinx sphinx_book_theme myst_parser nbsphinx ipython pyqlaw 
+          pip install sphinx sphinx_book_theme myst_parser jupyter nbsphinx ipython pyqlaw 
       - name: Sphinx build
         run: |
           sphinx-build docs/source _build
