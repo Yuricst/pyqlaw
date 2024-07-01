@@ -43,7 +43,7 @@ def test_object():
     else:
         oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
         oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
-        woe = [1.0, 1.0, 1.0, 1.0, 1.0]
+        woe = [3.0, 1.0, 1.0, 1.0, 1.0]
 
     # duty cycles
     duty_cycle = (0.85*86400/TU, 0.15*86400/TU)
@@ -61,8 +61,8 @@ def test_object():
 
     # spacecraft parameters
     MU = 1500
-    tmax_si = 0.1   # 100 mN
-    isp_si  = 1455   # seconds
+    tmax_si = 10 * 0.1   # 100 mN
+    isp_si  = 0.5 * 1455   # seconds
     mdot_si = tmax_si/(isp_si*9.81)  # kg/s
 
     # non-dimensional quantities
@@ -78,7 +78,7 @@ def test_object():
     prob.pretty()
 
     # solve
-    prob.solve(eta_a=0.0, eta_r=0.0)
+    prob.solve(eta_a=0.0, eta_r=0.2)
     prob.pretty_results()
     tend = time.time()
     print(f"Simulation took {tend-tstart:4.4f} seconds")
@@ -87,10 +87,11 @@ def test_object():
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True, TU=TU/86400, time_unit_name="day")
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=6378/LU, lw=0.1, interpolate=False)
     fig3, ax3 = prob.plot_controls(TU=TU/86400, time_unit_name="day")
+    fig4, ax4 = prob.plot_efficiency()
 
     print(f"oe0 = {oe0}")
     print(f"oeT = {oeT}")
-    return fig1, fig2, fig3
+    return
 
 
 if __name__=="__main__":
