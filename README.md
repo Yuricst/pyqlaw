@@ -6,20 +6,33 @@ Q-law feedback control for low-thrust orbital transfer in Python
 | [![PyPI version](https://badge.fury.io/py/pyqlaw.svg)](https://badge.fury.io/py/pyqlaw)  | | 
 
 
-Capabilities:
+## Capabilities:
 
 - Q-law formulated in Keplerian & SMA-MEE (MEE with semilatus rectum replaced by semimajor axis)
 - Coasting capabilities with efficiency parameters [3]
 - Thrust duty cycles
 - Battery level tracking
 
+## Installation
+
+To install, run 
+
+```
+pip install pyqlaw
+```
+
+and to uninstall
+
+```
+pip uninstall pyqlaw
+```
 
 ### Dependencies
 
 - `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `scipy`
 
 
-### References
+## References
 
 Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
 In general, the following should be kept in mind:
@@ -48,8 +61,6 @@ Test files are included in `./tests/`. Here, we present a basic example. Before 
 We start by importing the module
 
 ```python
-#import sys
-#sys.path.append("../")  # make sure the pyqlaw folder is exposed
 import pyqlaw
 ```
 
