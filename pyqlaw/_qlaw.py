@@ -41,18 +41,21 @@ class NumpyEncoder(json.JSONEncoder):
 
 class QLaw:
     """Object for Q-law based transfer problem.
+
     The overall procedure for using this class is:
+
     1. Create object via `prob = QLaw()`
     2. Set problem parameters via `prob.set_problem()`
     3. solve problem via `prob.solve()`
 
     Exitcodes:
-    0 : initial value (problem not yet attempted)
-    1 : solved within tolerance
-    2 : solved within relaxed tolerance
-    -1 : mass is below threshold
-    -2 : target elements could not be reached within allocated time
-    -3 : thrust angles from feedback control law is nan
+
+    - `0` : initial value (problem not yet attempted)
+    - `1` : solved within tolerance
+    - `2` : solved within relaxed tolerance
+    - `-1` : mass is below threshold
+    - `-2` : target elements could not be reached within allocated time
+    - `-3` : thrust angles from feedback control law is nan
 
     Args:
         mu (float): gravitational parameter, default is 1.0
@@ -74,9 +77,6 @@ class QLaw:
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
         use_sundman (bool): whether to use Sundman transformation for propagation
-
-    Attributes:
-        print_frequency (int): if verbosity >= 2, prints at this frequency
     """
     def __init__(
         self, 
@@ -883,7 +883,7 @@ class QLaw:
 
 
     def pretty_results(self):
-        """Pretty print results"""
+        """Pretty print results of the problem"""
         print(f"Exit code : {self.exitcode}")
         print(f"Converge  : {self.converge}")
         print(f"Final state:")
@@ -898,7 +898,7 @@ class QLaw:
 
 
     def pretty_settings(self):
-        """Pretty print settings"""
+        """Pretty print settings about the problem instance"""
         print(f"Element type  : {self.elements_type}")
         print(f"Element names : {self.element_names}")
         print(f"Integrator    : {self.integrator}")

@@ -16,12 +16,21 @@ sys.path.insert(0, os.path.abspath('./../..'))
 
 
 # -- Project information -----------------------------------------------------
+from os import path
+import re
 
 project = 'pyqlaw'
-copyright = '2024, Yuricst'
-author = 'Yuricst'
-release = '0.1.0'
 
+with open(path.join("../../", "pyqlaw", '__init__.py')) as f:
+    init_text = f.read()
+    #copyright = re.search(r'__copyright__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
+    release = re.search(r'__version__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
+    license = re.search(r'__license__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
+    author = re.search(r'__author__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
+    author_email = re.search(r'__author_email__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
+    url = re.search(r'__url__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
+
+copyright = "2023 Yuri Shimane"
 
 # -- General configuration ---------------------------------------------------
 
@@ -31,7 +40,10 @@ release = '0.1.0'
 extensions = ['myst_parser',
               'sphinx.ext.autodoc',
               'sphinx.ext.napoleon',
-              'sphinx.ext.githubpages',]
+              'sphinx.ext.githubpages',
+              'sphinx.ext.mathjax',
+              'nbsphinx',
+              'IPython.sphinxext.ipython_console_highlighting']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -78,3 +90,6 @@ napoleon_use_rtype = True
 napoleon_preprocess_types = False
 napoleon_type_aliases = None
 napoleon_attr_annotations = True
+
+# mathjax settings
+mathjax_path="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"

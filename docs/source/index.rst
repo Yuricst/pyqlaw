@@ -70,13 +70,15 @@ Some References
    :maxdepth: 1
    :caption: Contents:
 
+   theory
    api
 
 .. toctree::
    :maxdepth: 1
    :caption: Examples:
 
-   examples/ex_eta_functions
+   examples/ex_eta_functions.md
+   examples/ex_thruster_dutycycle.ipynb
 
 
 Indices and tables
