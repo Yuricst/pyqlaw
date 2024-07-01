@@ -11,9 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-      - uses: docker://pandoc/latex
       - name: Install dependencies
         run: |
+          sudo apt install pandoc
           pip install sphinx sphinx_book_theme myst_parser nbsphinx ipython pyqlaw 
       - name: Sphinx build
         run: |
