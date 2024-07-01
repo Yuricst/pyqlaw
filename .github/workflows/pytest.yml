@@ -1,4 +1,4 @@
-name: Run Unit Test via Pytest  
+name: pytest
   
 on: [push, pull_request]  
   
