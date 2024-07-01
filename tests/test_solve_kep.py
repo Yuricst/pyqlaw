@@ -12,7 +12,7 @@ sys.path.append("../")
 import pyqlaw
 
 
-def test_object():
+def test_solve_kep():
     # construct problem
     prob = pyqlaw.QLaw(
         elements_type="keplerian",
@@ -27,7 +27,7 @@ def test_object():
     tmax = 1e-3
     mdot = 1e-4
     tf_max = 3000.0
-    t_step = -1.0
+    t_step = 1.0
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
     prob.pretty()
@@ -39,10 +39,10 @@ def test_object():
     # plot
     fig1, ax1 = prob.plot_elements_history()
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
-    return fig1, fig2
+    assert prob.converge == True
 
 
 if __name__=="__main__":
-    figs = test_object()
+    test_solve_kep()
     plt.show()
     print("Done!")

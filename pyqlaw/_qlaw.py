@@ -756,14 +756,14 @@ class QLaw:
             cart = np.zeros((6,steps))
             for idx, t in enumerate(t_evals):
                 if self.elements_type=="keplerian":
-                    cart[:,idx] = kep2sv([f_a(t), f_e(t), f_i(t), f_r(t), f_o(t), f_t(t)], self.mu)
+                    cart[:,idx] = kep2sv(np.array([f_a(t), f_e(t), f_i(t), f_r(t), f_o(t), f_t(t)]), self.mu)
                 elif self.elements_type=="mee_with_a":
-                    cart[:,idx] = mee_with_a2sv([f_a(t), f_e(t), f_i(t), f_r(t), f_o(t), f_t(t)], self.mu)
+                    cart[:,idx] = mee_with_a2sv(np.array([f_a(t), f_e(t), f_i(t), f_r(t), f_o(t), f_t(t)]), self.mu)
         else:
             cart = np.zeros((6,len(self.times)))
             for idx in range(len(self.times)):
                 if self.elements_type=="keplerian":
-                    cart[:,idx] = kep2sv(self.states[idx], self.mu)
+                    cart[:,idx] = kep2sv(np.array(self.states[idx]), self.mu)
                 elif self.elements_type=="mee_with_a":
                     cart[:,idx] = mee_with_a2sv(np.array(self.states[idx]), self.mu)
         return cart

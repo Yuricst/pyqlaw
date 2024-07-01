@@ -6,7 +6,7 @@
 Welcome to pyqlaw's documentation!
 =======================================
 
-``pyqlaw`` is python implementation of the Q-law feedback control for low-thrust orbital transfers. 
+``pyqlaw`` is a python implementation of the Q-law feedback control for low-thrust orbital transfers. 
 
 Capabilities
 ------------
