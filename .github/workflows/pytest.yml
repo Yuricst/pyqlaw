@@ -1,0 +1,29 @@
+name: Run Unit Test via Pytest  
+  
+on: [push, pull_request]  
+  
+jobs:  
+  build:  
+    runs-on: ubuntu-latest  
+    strategy:  
+      matrix:  
+        python-version: ["3.11"]  
+  
+    steps:  
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}  
+        uses: actions/setup-python@v4  
+        with:  
+          python-version: ${{ matrix.python-version }}
+          node-version: 20
+      - name: Install dependencies  
+        run: |  
+          apt install swig
+          python -m pip install --upgrade pip  
+          pip install wheel pyqlaw
+      - name: Test with pytest  
+        run: |  
+          coverage run -m pytest  -v -s tests
+      - name: Generate Coverage Report  
+        run: |  
+          coverage report -m
