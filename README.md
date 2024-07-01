@@ -27,12 +27,12 @@ and to uninstall
 pip uninstall pyqlaw
 ```
 
-### Dependencies
+The package depends on the following basic python modules:
 
 - `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `scipy`
 
 
-## References
+## Overview of Q-law
 
 Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
 In general, the following should be kept in mind:
