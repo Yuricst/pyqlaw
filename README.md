@@ -1,6 +1,11 @@
 # pyqlaw
 Q-law feedback control for low-thrust orbital transfer in Python
 
+| PyPI     | Documentation |
+| -------- | ------------- |
+| [![PyPI version](https://badge.fury.io/py/pyqlaw.svg)](https://badge.fury.io/py/pyqlaw)  | | 
+
+
 Capabilities:
 
 - Q-law formulated in Keplerian & SMA-MEE (MEE with semilatus rectum replaced by semimajor axis)
