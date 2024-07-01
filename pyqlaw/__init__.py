@@ -2,6 +2,13 @@
 init file for module
 """
 
+__copyright__    = 'Copyright (C) 2023 Yuri Shimane'
+__version__      = '0.1.0'
+__license__      = 'MIT License'
+__author__       = 'Yuri Shimane'
+__author_email__ = 'yuri.shimane@gatech.edu'
+__url__          = 'https://github.com/Yuricst/pyqlaw'
+
 
 from ._symbolic import (
     symbolic_qlaw_keplerian,

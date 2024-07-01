@@ -16,7 +16,7 @@ Capabilities:
 
 ### Dependencies
 
-- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`
+- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `scipy`
 
 
 ### References
