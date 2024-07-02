@@ -10,11 +10,15 @@ from numba import njit
 @njit
 def check_convergence(oe, oeT, woe, tol_oe):
     """Check convergence between oe and oeT"""
-    check_array = np.zeros(5,) # np.array([1 if el == 0.0 else 0 for el in woe])
+    check_array = np.zeros(len(tol_oe),)
     doe = np.abs(oeT[0:5] - oe[0:5])  # FIXME is this ok? or should we be careful for angles?
-    check_array = doe < tol_oe
+    for idx in range(len(tol_oe)):
+        if woe[idx] == 0.0:
+            check_array[idx] = 1        # consider converged
+        else:
+            check_array[idx] = doe[idx] <= tol_oe[idx]
 
-    if np.sum(check_array)==5:
+    if np.sum(check_array)==len(tol_oe):
         return True
     else:
         return False
