@@ -353,11 +353,6 @@ class QLaw:
                 duty = True             # turn on duty cycle
                 t_last_ON = t_iter      # latest time when we turn on
 
-            # # overwrite time-step to time until we hit bottom of battery capacity
-            # if (battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]) and\
-            #     (charging is False):
-            #     t_step_local = (battery_iter - self.battery_capacity[0])/self.battery_charge_discharge_rate[1]
-
             # no longer able to thrust (added 1e-12 for numerical tolerance)
             if battery_iter <= self.battery_capacity[0] + 1e-12:
                 duty = False                # turn off
