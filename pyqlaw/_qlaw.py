@@ -344,9 +344,6 @@ class QLaw:
             else:
                 t_step_local = self.t_step
 
-            # compute instantaneous acceleration magnitude due to thrust
-            accel_thrust = np.sign(t_step_local) * self.tmax/mass_iter
-
             # evaluate duty cycle
             if ((t_iter - t_last_ON) > self.duty_cycle[0]) and (duty is True):
                 duty = False            # turn off duty cycle
@@ -356,16 +353,29 @@ class QLaw:
                 duty = True             # turn on duty cycle
                 t_last_ON = t_iter      # latest time when we turn on
 
-            # check battery state
-            if battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]:
+            # # overwrite time-step to time until we hit bottom of battery capacity
+            # if (battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]) and\
+            #     (charging is False):
+            #     t_step_local = (battery_iter - self.battery_capacity[0])/self.battery_charge_discharge_rate[1]
+
+            # no longer able to thrust (added 1e-12 for numerical tolerance)
+            if battery_iter <= self.battery_capacity[0] + 1e-12:
                 duty = False                # turn off
                 t_last_OFF = t_iter         # latest time when we turn off
                 charging = True
+            
+            # overwrite time-step to time until we hit bottom of battery capacity
+            elif (battery_iter - self.battery_charge_discharge_rate[1]*t_step_local < self.battery_capacity[0]) and\
+                (charging is False):
+                t_step_local = (battery_iter - self.battery_capacity[0])/self.battery_charge_discharge_rate[1]
 
             # check if battery is full
             if (self.require_full_recharge is True) and (charging is True) and\
                 (battery_iter < self.battery_capacity[1]):
                 duty = False                # turn off
+
+            # compute instantaneous acceleration magnitude due to thrust
+            accel_thrust = np.sign(t_step_local) * self.tmax/mass_iter
 
             # initialize efficiency parameters for storage
             val_eta_a, val_eta_r = np.nan, np.nan
@@ -432,12 +442,15 @@ class QLaw:
                         qdot_min, qdot_max = self.evaluate_osculating_qdot(
                             oe_iter, accel_thrust
                         )
-                        val_eta_a = qdot_current/qdot_min
-                        val_eta_r = (qdot_current - qdot_max)/(qdot_min - qdot_max)
+                        val_eta_a = np.abs(qdot_current/qdot_min)
+                        val_eta_r = np.abs((qdot_current - qdot_max)/(qdot_min - qdot_max))
+                        #print(f"val_eta_r = {val_eta_r:1.4e}, eta_r_current = {eta_r_current:1.4e}")
+
                         # turn thrust off if below threshold
                         if val_eta_a < eta_a_current or val_eta_r < eta_r_current:
                             throttle = 0  # turn off
                             u = np.zeros((3,))
+
             else:
                 u = np.zeros((3,))
                 throttle = 0  # turn off
