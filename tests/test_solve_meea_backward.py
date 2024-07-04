@@ -16,7 +16,7 @@ import faulthandler
 faulthandler.enable()
 
 
-def test_solve_meea_backward():
+def test_solve_meea_backward(close_figures=True):
     tstart = time.time()
 
     # construct problem
@@ -53,9 +53,11 @@ def test_solve_meea_backward():
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True)
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
+    if close_figures:
+        plt.close('all')
     assert prob.converge == True
 
 
 if __name__=="__main__":
-    figs = test_solve_meea_backward()
+    figs = test_solve_meea_backward(close_figures=False)
     plt.show()

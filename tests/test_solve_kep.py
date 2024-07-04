@@ -13,7 +13,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import pyqlaw
 
 
-def test_solve_kep():
+def test_solve_kep(close_figures=True):
     # construct problem
     prob = pyqlaw.QLaw(
         elements_type="keplerian",
@@ -44,10 +44,12 @@ def test_solve_kep():
     fig4, ax4 = prob.plot_efficiency()
     fig5, ax5 = prob.plot_Q()
     fig6, ax6 = prob.plot_trajectory_2d()
+    if close_figures:
+        plt.close('all')
     assert prob.converge == True
 
 
 if __name__=="__main__":
-    test_solve_kep()
+    test_solve_kep(close_figures=False)
     plt.show()
     print("Done!")

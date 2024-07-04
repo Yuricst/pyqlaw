@@ -16,7 +16,7 @@ import faulthandler
 faulthandler.enable()
 
 
-def test_solve_meea():
+def test_solve_meea(close_figures=True):
     tstart = time.time()
 
     # construct problem
@@ -54,6 +54,8 @@ def test_solve_meea():
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
     fig4, ax4 = prob.plot_trajectory_2d()
+    if close_figures:
+        plt.close('all')
 
     # save results
     prob.save_to_dict("results_dict_pyqlaw.json", save_control_angles=False)
@@ -63,5 +65,5 @@ def test_solve_meea():
 
 
 if __name__=="__main__":
-    figs = test_solve_meea()
+    figs = test_solve_meea(close_figures=False)
     plt.show()

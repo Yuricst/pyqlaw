@@ -63,7 +63,7 @@ def plot_eta_func():
     return
     
 
-def test_object():
+def test_object(close_figures=True):
     tstart = time.time()
 
     # initial and final elements: [a,e,i,RAAN,omega,ta]
@@ -145,11 +145,13 @@ def test_object():
     fig4, ax4 = prob.plot_battery_history(TU=TU/86400, BU=TU/3600,
         time_unit_name="day", battery_unit_name="Wh")
     fig5, ax5 = prob.plot_efficiency(TU=TU/86400, time_unit_name="day")
+    if close_figures:
+        plt.close('all')
     assert prob.converge == True
 
 
 if __name__=="__main__":
-    plot_eta_func()
-    figs = test_object()
+    #plot_eta_func()
+    figs = test_object(close_figures=False)
     plt.show()
     print("Done!")
