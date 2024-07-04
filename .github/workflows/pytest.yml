@@ -18,10 +18,13 @@ jobs:
           node-version: 20
       - name: Install dependencies  
         run: |
-          pip install wheel pyqlaw pytest coverage
+          pip install wheel pyqlaw pytest coverage genbadge[all]
       - name: Test with pytest  
         run: |  
           coverage run -m pytest  -v -s tests
       - name: Generate Coverage Report  
         run: |  
           coverage report -m
+          coverage xml
+          coverage html
+          genbadge coverage -i coverage.xml

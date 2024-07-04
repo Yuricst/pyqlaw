@@ -51,6 +51,8 @@ def test_solve_meea(close_figures=True):
 
     # plot
     fig1, ax1 = prob.plot_elements_history(to_keplerian=True)
+    fig1, ax1 = prob.plot_elements_history(to_keplerian=True, plot_periapsis=True)
+    fig1, ax1 = prob.plot_elements_history(to_keplerian=True, plot_mass=True)
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
     fig4, ax4 = prob.plot_trajectory_2d()
