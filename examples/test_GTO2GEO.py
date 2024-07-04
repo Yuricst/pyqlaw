@@ -55,6 +55,7 @@ def test_object():
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
     fig3, ax3 = prob.plot_controls()
     fig4, ax4 = prob.plot_efficiency()
+    fig5, ax5 = prob.plot_Q()
 
     # export state history as initial guess for ICLOCS2
     #prob.save_to_dict('initial_guess_GTO2GEO.json')
