@@ -43,6 +43,7 @@ def test_solve_kep():
     fig3, ax3 = prob.plot_controls()
     fig4, ax4 = prob.plot_efficiency()
     fig5, ax5 = prob.plot_Q()
+    fig6, ax6 = prob.plot_trajectory_2d()
     assert prob.converge == True
 
 

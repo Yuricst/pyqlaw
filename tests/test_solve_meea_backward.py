@@ -16,7 +16,7 @@ import faulthandler
 faulthandler.enable()
 
 
-def test_solve_mee():
+def test_solve_meea_backward():
     tstart = time.time()
 
     # construct problem
@@ -57,5 +57,5 @@ def test_solve_mee():
 
 
 if __name__=="__main__":
-    figs = test_solve_mee()
+    figs = test_solve_meea_backward()
     plt.show()

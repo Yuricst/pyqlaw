@@ -24,6 +24,13 @@ from ._integrate import (
 )
 from ._lyapunov import lyapunov_control_angles
 from ._elements import (
+    get_semiMajorAxis,
+    get_eccentricity,
+    get_inclination,
+    get_raan,
+    get_omega,
+    get_trueanom,
+    get_period,
     sv2kep, 
     kep2sv,
     kep2mee,

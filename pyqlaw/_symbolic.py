@@ -212,10 +212,6 @@ def symbolic_qlaw_mee_with_a(cse = True):
     wa, wf, wg, wh, wk = sym.symbols("w_a w_f w_g w_h w_k")
     woe = [wa, wf, wg, wh, wk]
 
-
-    def angle_difference(phi1, phi2):
-        return sym.acos(sym.cos(phi1 - phi2))
-
     def quotient(mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe):
         # unpack elements
         a, f, g, h, k, l = oe
