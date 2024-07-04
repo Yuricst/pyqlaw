@@ -29,6 +29,7 @@ from ._elements import (
     kep2mee,
     mee2kep,
     kep2mee_with_a,
+    mee_with_a2kep,
     mee_with_a2sv,
     ta2ea,
     mee2ea,

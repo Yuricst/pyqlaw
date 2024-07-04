@@ -17,7 +17,6 @@ def get_inclination(state):
     Returns:
         (float): inclination in radians
     """
-
     # decompose state to position and velocity vector
     r = state[0:3]
     v = state[3:6]
@@ -288,7 +287,7 @@ def mee2mee_with_a(oe_mee):
     # unpack 
     p,f,g,h,k,l = oe_mee
     a = p/(1-f**2-g**2)
-    return np.array([a, f,g,h,k,l])
+    return np.array([a,f,g,h,k,l])
 
 
 @njit

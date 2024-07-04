@@ -7,8 +7,9 @@ import numpy as np
 from numpy.random import rand
 import matplotlib.pyplot as plt
 
+import os
 import sys
-sys.path.append("../")
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import pyqlaw
 
 
