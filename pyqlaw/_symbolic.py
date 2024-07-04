@@ -137,22 +137,27 @@ def symbolic_qlaw_keplerian(cse = True):
         dqdoe2 = sym.diff(q, oe[2])   # i 
         dqdoe3 = sym.diff(q, oe[3])   # RA
         dqdoe4 = sym.diff(q, oe[4])   # om  --- FIXME
+        dqdoe = [dqdoe0, dqdoe1, dqdoe2, dqdoe3, dqdoe4]
 
         ux = (psi[0][0]*dqdoe0 + psi[0][1]*dqdoe1 + psi[0][2]*dqdoe2 + psi[0][3]*dqdoe3 + psi[0][4]*dqdoe4)
         uy = (psi[1][0]*dqdoe0 + psi[1][1]*dqdoe1 + psi[1][2]*dqdoe2 + psi[1][3]*dqdoe3 + psi[1][4]*dqdoe4)
         uz = (psi[2][0]*dqdoe0 + psi[2][1]*dqdoe1 + psi[2][2]*dqdoe2 + psi[2][3]*dqdoe3 + psi[2][4]*dqdoe4)
 
-        # compute qdot
-        #qdot = ux + uy + uz
-        dqdt = dqdoe0*(psi[0][0]*ux + psi[1][0]*uy + psi[2][0]*uz) +\
-               dqdoe1*(psi[0][1]*ux + psi[1][1]*uy + psi[2][1]*uz) +\
-               dqdoe2*(psi[0][2]*ux + psi[1][2]*uy + psi[2][2]*uz) +\
-               dqdoe3*(psi[0][3]*ux + psi[1][3]*uy + psi[2][3]*uz) +\
-               dqdoe4*(psi[0][4]*ux + psi[1][4]*uy + psi[2][4]*uz)
+        umag = sym.sqrt(ux**2 + uy**2 + uz**2)
+        ux_unit = ux/umag
+        uy_unit = uy/umag
+        uz_unit = uz/umag
+
+        dqdt = f * (
+            dqdoe0*(psi[0][0]*ux_unit + psi[1][0]*uy_unit + psi[2][0]*uz_unit) +\
+            dqdoe1*(psi[0][1]*ux_unit + psi[1][1]*uy_unit + psi[2][1]*uz_unit) +\
+            dqdoe2*(psi[0][2]*ux_unit + psi[1][2]*uy_unit + psi[2][2]*uz_unit) +\
+            dqdoe3*(psi[0][3]*ux_unit + psi[1][3]*uy_unit + psi[2][3]*uz_unit) +\
+            dqdoe4*(psi[0][4]*ux_unit + psi[1][4]*uy_unit + psi[2][4]*uz_unit))
 
         fun_lyapunov_control = lambdify(
             [mu, f, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
-            [[ux,uy,uz], psi], 
+            [[ux,uy,uz], psi, q, dqdoe], 
             "numpy",
             cse = cse,
         )
@@ -310,6 +315,7 @@ def symbolic_qlaw_mee_with_a(cse = True):
         dqdoe2 = sym.diff(q, oe[2])   # g 
         dqdoe3 = sym.diff(q, oe[3])   # h
         dqdoe4 = sym.diff(q, oe[4])   # k
+        dqdoe = [dqdoe0, dqdoe1, dqdoe2, dqdoe3, dqdoe4]
 
         # # compute thrust vector components
         # u_unscaled = [
@@ -345,16 +351,22 @@ def symbolic_qlaw_mee_with_a(cse = True):
         ux = (psi[0][0]*dqdoe0 + psi[0][1]*dqdoe1 + psi[0][2]*dqdoe2 + psi[0][3]*dqdoe3 + psi[0][4]*dqdoe4)
         uy = (psi[1][0]*dqdoe0 + psi[1][1]*dqdoe1 + psi[1][2]*dqdoe2 + psi[1][3]*dqdoe3 + psi[1][4]*dqdoe4)
         uz = (psi[2][0]*dqdoe0 + psi[2][1]*dqdoe1 + psi[2][2]*dqdoe2 + psi[2][3]*dqdoe3 + psi[2][4]*dqdoe4)
+        
+        umag = sym.sqrt(ux**2 + uy**2 + uz**2)
+        ux_unit = ux/umag
+        uy_unit = uy/umag
+        uz_unit = uz/umag
 
-        dqdt = dqdoe0*(psi[0][0]*ux + psi[1][0]*uy + psi[2][0]*uz) +\
-               dqdoe1*(psi[0][1]*ux + psi[1][1]*uy + psi[2][1]*uz) +\
-               dqdoe2*(psi[0][2]*ux + psi[1][2]*uy + psi[2][2]*uz) +\
-               dqdoe3*(psi[0][3]*ux + psi[1][3]*uy + psi[2][3]*uz) +\
-               dqdoe4*(psi[0][4]*ux + psi[1][4]*uy + psi[2][4]*uz)
+        dqdt = accel * (
+            dqdoe0*(psi[0][0]*ux_unit + psi[1][0]*uy_unit + psi[2][0]*uz_unit) +\
+            dqdoe1*(psi[0][1]*ux_unit + psi[1][1]*uy_unit + psi[2][1]*uz_unit) +\
+            dqdoe2*(psi[0][2]*ux_unit + psi[1][2]*uy_unit + psi[2][2]*uz_unit) +\
+            dqdoe3*(psi[0][3]*ux_unit + psi[1][3]*uy_unit + psi[2][3]*uz_unit) +\
+            dqdoe4*(psi[0][4]*ux_unit + psi[1][4]*uy_unit + psi[2][4]*uz_unit))
 
         fun_lyapunov_control = lambdify(
             [mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, b_petro, k_petro, wp, woe], 
-            [[ux, uy, uz], psi], 
+            [[ux, uy, uz], psi, q, dqdoe], 
             "numpy",
             cse = cse,
         )

@@ -48,7 +48,7 @@ def lyapunov_control_angles(
         (tuple): alpha, beta, vector u, list of columns of psi
     """
     # compute u direction
-    u_raw, psi = fun_lyapunov_control(
+    u_raw, psi, q, dqdoe = fun_lyapunov_control(
         mu, 
         f, 
         oe, 
@@ -62,4 +62,9 @@ def lyapunov_control_angles(
     # compute thrust angles
     u_float = np.array([float(el) for el in u_raw])
     u, alpha, beta = _u_to_thrust_angles(u_float)
-    return alpha, beta, u, psi
+
+    # compute dqdt
+    # print("np.array(dqdoe).shape = ", np.array(dqdoe).shape)
+    # print("np.array(psi).shape = ", np.array(psi).shape)
+    dqdt = np.array(dqdoe) @ np.array(psi).T @ (f * u)
+    return alpha, beta, u, psi, q, dqdt
