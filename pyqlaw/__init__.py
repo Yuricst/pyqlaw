@@ -33,7 +33,11 @@ from ._elements import (
     ta2ea,
     mee2ea,
 )
-from ._convergence import check_convergence
+from ._convergence import (
+    check_convergence_keplerian,
+    check_convergence_mee,
+    elements_safety
+)
 from ._qlaw import QLaw
 from ._plot_helper import (
     get_sphere_coordinates,
