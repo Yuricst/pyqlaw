@@ -22,3 +22,8 @@ def rotmat3(phi):
 	return np.array([ [ np.cos(phi), np.sin(phi), 0.0],
 					  [-np.sin(phi), np.cos(phi), 0.0],
 					  [0.0, 0.0, 1.0] ])
+
+
+def wrap(alpha):
+	"""Wrap angle to be between -pi and pi"""
+	return (alpha + np.pi) % 2.0 * np.pi - np.pi
