@@ -37,8 +37,11 @@ def test_solve_kep():
     prob.pretty_results()
 
     # plot
-    fig1, ax1 = prob.plot_elements_history()
+    fig1, ax1 = prob.plot_elements_history(to_keplerian=False)
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
+    fig3, ax3 = prob.plot_controls()
+    fig4, ax4 = prob.plot_efficiency()
+    fig5, ax5 = prob.plot_Q()
     assert prob.converge == True
 
 
