@@ -3,7 +3,7 @@ Q-law feedback control for low-thrust orbital transfer in Python
 
 | PyPI     | Documentation | Test          | Coverage |
 | -------- | ------------- | ------------- | -------- |
-| [![PyPI version](https://badge.fury.io/py/pyqlaw.svg)](https://badge.fury.io/py/pyqlaw)  | [![documentation workflow](https://github.com/Yuricst/pyqlaw/actions/workflows/documentation.yml/badge.svg)](https://yuricst.github.io/pyqlaw/)    | ![pytest workflow](https://github.com/Yuricst/pyqlaw/actions/workflows/pytest.yml/badge.svg)  | [![Coverage Status](./coverage-badge.svg?dummy=8484744)](./htmlcov/index.html) |
+| [![PyPI version](https://badge.fury.io/py/pyqlaw.svg)](https://badge.fury.io/py/pyqlaw)  | [![documentation workflow](https://github.com/Yuricst/pyqlaw/actions/workflows/documentation.yml/badge.svg)](https://yuricst.github.io/pyqlaw/)    | ![pytest workflow](https://github.com/Yuricst/pyqlaw/actions/workflows/pytest.yml/badge.svg)  | [![Coverage Status](/home/runner/work/pyqlaw/pyqlaw/coverage-badge.svg?dummy=8484744)](./htmlcov/index.html) |
 
 
 ## Capabilities:
