@@ -12,7 +12,11 @@ from ._symbolic import symbolic_qlaw_keplerian, symbolic_qlaw_mee_with_a
 from ._lyapunov import lyapunov_control_angles
 from ._eom import eom_kep_gauss, eom_mee_gauss, eom_mee_with_a_gauss
 from ._integrate import rk4, rkf45
-from ._convergence import check_convergence, elements_safety
+from ._convergence import (
+    check_convergence_keplerian,
+    check_convergence_mee,
+    elements_safety
+)
 from ._elements import (
     kep2sv,
     mee_with_a2sv,
@@ -24,6 +28,7 @@ from ._elements import (
     mee2ea
 )
 from ._plot_helper import plot_sphere_wireframe, set_equal_axis
+from ._transformations import wrap
 
 import json
 
@@ -159,6 +164,7 @@ class QLaw:
             fun_lyapunov_control, _, _, fun_eval_dqdt = symbolic_qlaw_keplerian()
             self.lyap_fun = fun_lyapunov_control
             self.dqdt_fun = fun_eval_dqdt
+            self.check_convergence = check_convergence_keplerian
 
         elif self.elements_type == "mee_with_a":
             self.element_names = ["a", "f", "g", "h", "k", "L"]
@@ -166,6 +172,7 @@ class QLaw:
             fun_lyapunov_control, _, _, fun_eval_dqdt = symbolic_qlaw_mee_with_a()
             self.lyap_fun = fun_lyapunov_control
             self.dqdt_fun = fun_eval_dqdt
+            self.check_convergence = check_convergence_mee
 
         # max and min step sizes used with adaptive step integrators
         self.step_min = 1e-4
@@ -206,7 +213,7 @@ class QLaw:
         duty_cycle=(1e16,0.0),
         battery_initial=1.0,
         battery_capacity=(0.2,1.0),
-        battery_charge_discharge_rate=(0.2,0.01),
+        battery_charge_discharge_rate=(0.0,0.0),
         require_full_recharge=False,
     ):
         """Set transfer problem
@@ -294,7 +301,9 @@ class QLaw:
         battery_iter = self.battery_initial
 
         # initialize storage
-        self.times = [t_iter,]
+        self.Qs     = []
+        self.dQdts  = []
+        self.times  = [t_iter,]
         self.states = [oe_iter,]
         self.masses = [mass_iter,]
         self.controls = []
@@ -377,7 +386,7 @@ class QLaw:
             eta_a_current, eta_r_current = np.nan, np.nan
             if duty:
                 # evaluate Lyapunov function
-                alpha, beta, _, psi = lyapunov_control_angles(
+                alpha, beta, _, psi, q, qdot_current = lyapunov_control_angles(
                     fun_lyapunov_control=self.lyap_fun,
                     mu=self.mu, 
                     f=accel_thrust, 
@@ -425,15 +434,6 @@ class QLaw:
 
                     # check effectivity to decide whether to thrust or coast
                     if eta_r_current > 0 or eta_a_current > 0:
-                        qdot_current = self.dqdt_fun(
-                            self.mu, 
-                            accel_thrust, 
-                            oe_iter, 
-                            self.oeT, 
-                            self.rpmin, self.m_petro, self.n_petro, 
-                            self.r_petro, self.b_petro, self.k_petro, 
-                            self.wp, self.woe
-                        )
                         qdot_min, qdot_max = self.evaluate_osculating_qdot(
                             oe_iter, accel_thrust
                         )
@@ -450,7 +450,7 @@ class QLaw:
                 u = np.zeros((3,))
                 throttle = 0  # turn off
                 # evaluate Lyapunov function just for psi (FIXME)
-                _, _, _, psi = lyapunov_control_angles(
+                _, _, _, psi, q, qdot_current = lyapunov_control_angles(
                     fun_lyapunov_control=self.lyap_fun,
                     mu=self.mu, 
                     f=accel_thrust, 
@@ -495,19 +495,18 @@ class QLaw:
                 if throttle == 1:
                     mass_iter -= self.mdot*t_step_local  # update mass
                 oe_iter = oe_next
-                #print(f"h_nect: {h_next}")
                 t_step_local = max(self.step_min, min(self.step_max,h_next))
             else:
                 raise ValueError("integrator name invalid!")
                 
             # check convergence
-            if check_convergence(oe_next, self.oeT, self.woe, self.tol_oe) == True:
+            if self.check_convergence(oe_next, self.oeT, self.woe, self.tol_oe) == True:
                 self.exitcode = 1
                 self.converge = True
                 break
 
             # check relaxed condition
-            if check_convergence(oe_next, self.oeT, self.woe, self.tol_oe_relaxed) == True:
+            if self.check_convergence(oe_next, self.oeT, self.woe, self.tol_oe_relaxed) == True:
                 n_relaxed_cleared += 1
                 if n_relaxed_cleared >= self.exit_at_relaxed:
                     self.exitcode = 2
@@ -535,6 +534,8 @@ class QLaw:
             self.controls.append([alpha, beta, throttle])
             self.etas.append([val_eta_a, val_eta_r])
             self.etas_bounds.append([eta_a_current, eta_r_current])
+            self.Qs.append(q)
+            self.dQdts.append(qdot_current)
 
             # update battery
             if duty:
@@ -577,27 +578,6 @@ class QLaw:
         for anomaly in eval_pts:
             # construct element
             oe_test = np.array([oe[0], oe[1], oe[2], oe[3], oe[4], anomaly])
-            # # evaluate Lyapunov function
-            # alpha, beta, _, psi_test = lyapunov_control_angles(
-            #     fun_lyapunov_control=self.lyap_fun,
-            #     mu=self.mu, 
-            #     f=accel_thrust, 
-            #     oe=oe_test, 
-            #     oeT=self.oeT, 
-            #     rpmin=self.rpmin, 
-            #     m_petro=self.m_petro, 
-            #     n_petro=self.n_petro, 
-            #     r_petro=self.r_petro, 
-            #     b_petro=self.b_petro, 
-            #     k_petro=self.k_petro, 
-            #     wp=self.wp, 
-            #     woe=self.woe,
-            # )
-            # u_test = accel_thrust*np.array([
-            #     np.cos(beta)*np.sin(alpha),
-            #     np.cos(beta)*np.cos(alpha),
-            #     np.sin(beta),
-            # ])
 
             # evaluate qdot
             qdot_list.append(
@@ -611,7 +591,6 @@ class QLaw:
                     self.wp, self.woe
                 )
             )
-            #eval_qdot(psi_test, u_test)
         return min(qdot_list), max(qdot_list)
 
 
@@ -639,6 +618,8 @@ class QLaw:
         """
         oes = np.zeros((6,len(self.times)))
         fig, axs = plt.subplots(2,3,figsize=figsize)
+        for ax in axs.flatten():
+            ax.grid(True, alpha=0.3)
         for idx in range(len(self.times)):
             if to_keplerian == True and self.elements_type=="mee_with_a":
                 oes[:,idx] = mee_with_a2kep(self.states[idx])
@@ -712,13 +693,14 @@ class QLaw:
         return fig, ax
 
 
-    def plot_controls(self, figsize=(9,5), TU=1.0, time_unit_name="TU"):
+    def plot_controls(self, figsize=(9,5), TU=1.0, time_unit_name="TU", show_anomaly=True):
         """Plot control time history
         
         Args:
             figsize (tuple): figure size
             TU (float): time unit
             time_unit_name (str): name of time unit
+            show_anomaly (bool): whether to overlay anomaly
         
         Returns:
             (tuple): figure and axis objects
@@ -729,9 +711,15 @@ class QLaw:
             betas.append(control[1])
             throttles.append(control[2])
         fig, ax = plt.subplots(1,1,figsize=figsize)
+        if show_anomaly:
+            ax.plot(np.array(self.times)*TU, wrap(np.array(self.states)[:,5])*180/np.pi,
+                    color='grey', label="Anomaly", lw=0.35)
         ax.step(np.array(self.times[0:-1])*TU, np.array(alphas)*180/np.pi, where='pre', marker='o', markersize=2, label="alpha")
         ax.step(np.array(self.times[0:-1])*TU, np.array(betas)*180/np.pi, where='pre', marker='o', markersize=2, label="beta")
         ax.step(np.array(self.times[0:-1])*TU, np.array(throttles)*100, where='pre', marker='o', markersize=2, label="throttle, %")
+        
+        radii = np.array(self.states)[:,0]*(1 - np.array(self.states)[:,1])
+
         ax.set(xlabel=f"Time, {time_unit_name}", ylabel="Control angles and throttle")
         ax.legend()
         return fig, ax
@@ -875,6 +863,27 @@ class QLaw:
         axs[1].set(xlabel=f"Time, {time_unit_name}", ylabel="Relative efficiency")
         for ax in axs:
             ax.legend()
+        plt.tight_layout()
+        return fig, ax
+
+
+    def plot_Q(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
+        """Plot quotient history
+        
+        Args:
+            figsize (tuple): figure size
+            TU (float): time unit
+            time_unit_name (str): name of time unit
+        
+        Returns:
+            (tuple): figure and axis objects
+        """
+        fig, ax = plt.subplots(1,1,figsize=figsize)
+        ax.step(np.array(self.times[0:-1])*TU, np.array(self.Qs), label="Q")
+        ax.step(np.array(self.times[0:-1])*TU, np.array(self.dQdts), label="|dQ/dt|, [1/TU]")
+        ax.grid(True, alpha=0.3)
+        ax.set(yscale="log")
+        ax.legend()
         plt.tight_layout()
         return fig, ax
 
