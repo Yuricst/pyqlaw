@@ -782,7 +782,8 @@ class QLaw:
             coord_orbT = get_orbit_coordinates(np.concatenate((self.oeT,[0.0])), self.mu)
         elif self.elements_type == "mee_with_a":
             coord_orb0 = get_orbit_coordinates(mee_with_a2kep(self.oe0), self.mu)
-            coord_orbT = get_orbit_coordinates(np.concatenate((mee_with_a2kep(self.oeT)[0:5],[0.0])), self.mu)
+            coord_orbT = get_orbit_coordinates(
+                mee_with_a2kep(np.concatenate((self.oeT[0:5],[0.0]))), self.mu)
         ax.plot(coord_orb0[0,:], coord_orb0[1,:], label="Initial", c="darkblue")
         ax.plot(coord_orbT[0,:], coord_orbT[1,:], label="Final", c="forestgreen")
 

@@ -56,8 +56,8 @@ def test_solve_meea():
     fig4, ax4 = prob.plot_trajectory_2d()
 
     # save results
-    prob.save_results("results_dict_pyqlaw.json", save_control_angles=False)
-    prob.save_results("results_dict_pyqlaw.json", save_control_angles=True)
+    prob.save_to_dict("results_dict_pyqlaw.json", save_control_angles=False)
+    prob.save_to_dict("results_dict_pyqlaw.json", save_control_angles=True)
     os.remove("results_dict_pyqlaw.json")    # remove file generated
     assert prob.converge == True
 
