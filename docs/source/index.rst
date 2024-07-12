@@ -79,6 +79,7 @@ Some References
 
    examples/ex_eta_functions.md
    examples/ex_thruster_dutycycle.ipynb
+   examples/ex_gto_manifold.ipynb
 
 
 Indices and tables
