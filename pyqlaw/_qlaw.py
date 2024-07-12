@@ -740,11 +740,11 @@ class QLaw:
         return (f_a, f_e, f_i, f_r, f_o, f_t)
 
 
-    def get_cartesian_history(self, interpolate=False, steps=None):
+    def get_cartesian_history(self, interpolate=False, steps=None, kind="quadratic", get_t_evals=False):
         """Get Cartesian history of states"""
         if interpolate:
             # interpolate orbital elements
-            f_a, f_e, f_i, f_r, f_o, f_t = self.interpolate_states()
+            f_a, f_e, f_i, f_r, f_o, f_t = self.interpolate_states(kind=kind)
             if steps is None:
                 steps = min(8000, abs(int(round(self.times[-1]/0.1))))
                 print(f"Using {steps} steps for evaluation")
@@ -756,13 +756,17 @@ class QLaw:
                 elif self.elements_type=="mee_with_a":
                     cart[:,idx] = mee_with_a2sv(np.array([f_a(t), f_e(t), f_i(t), f_r(t), f_o(t), f_t(t)]), self.mu)
         else:
+            t_evals = None
             cart = np.zeros((6,len(self.times)))
             for idx in range(len(self.times)):
                 if self.elements_type=="keplerian":
                     cart[:,idx] = kep2sv(np.array(self.states[idx]), self.mu)
                 elif self.elements_type=="mee_with_a":
                     cart[:,idx] = mee_with_a2sv(np.array(self.states[idx]), self.mu)
-        return cart
+        if get_t_evals:
+            return cart, t_evals
+        else:
+            return cart
 
 
     def plot_trajectory_2d(
