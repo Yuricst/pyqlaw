@@ -11,6 +11,7 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import pyqlaw
+pyqlaw.__NOPYTHON__ = False
 
 
 def test_solve_kep(close_figures=True):

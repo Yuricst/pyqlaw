@@ -5,7 +5,7 @@ Test solving in MEE, backward in time
 import numpy as np
 from numpy.random import rand
 import matplotlib.pyplot as plt
-import time 
+import time
 
 import os
 import sys
@@ -14,7 +14,6 @@ import pyqlaw
 
 import faulthandler
 faulthandler.enable()
-
 
 def test_solve_meea_backward(close_figures=True):
     tstart = time.time()
