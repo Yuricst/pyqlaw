@@ -33,17 +33,12 @@ Spacecraft transfer design is a challenging problem due to the underlying nonlin
 Many of these methods benefit greatly from a strong, feasible initial guess. 
 In the context of many-revolution transfers, Lyapunov controllers is a powerful approach for constructing feasible and near-optimal solutions. 
 The so-called Q-law [@Petropoulos2003] [@Petropoulos2004] [@Petropoulos2005] consists of using a Lyapunov function defined in terms of orbital elements, and has been used extensively over the last two decades. 
-Q-law can generate both the state and control history of the spacecraft, which may be used not only as initial guess for higher fidelity OCP solvers, but also to esimtate for the transfer cost and time between two orbits [@Jagannatha2020] [@Shimane2023] [@Apa2023], or to conduct large-scale trade-studies for parameters such as spacecraft mass or engine properties. 
+Q-law can generate both the state and control history of the spacecraft, which may be used not only as initial guess for higher fidelity OCP solvers, but also to esimtate for the transfer cost and time between two orbits [@Jagannatha2020] [@Shimane2023] [@Apa2023], or to conduct large-scale trade-studies for parameters such as spacecraft mass or engine properties [@Lee2005]. 
 
 The `pyqlaw` module implements the Q-law scheme in two popular orbital elements representations: Keplerian elements and modified equinoctial elements (MEE). 
 
 Examples are provided in the `pyqlaw` repository. 
 
-![](https://raw.githubusercontent.com/yuricst/pyqlaw/main/paper/example_3D_trajectory.png)
-**Figure 1.** Example transfer trajectory from GTO to GEO.
-
-![](https://raw.githubusercontent.com/yuricst/pyqlaw/main/paper/example_3D_trajectory.png)
-**Figure 2.** Example state history from GTO to GEO.
 
 
 # Acknowledgements
