@@ -1,7 +1,5 @@
 """Test for eoms"""
 
-
-
 import numpy as np
 from numpy.random import rand
 import matplotlib.pyplot as plt
@@ -10,6 +8,12 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
 import pyqlaw
+
+
+def test_u_vector_to_thrust_angles():
+    thrust_vector = np.array([0.2,0.4,0.67])
+    umag,alpha,beta = pyqlaw._u_to_thrust_angles.py_func(thrust_vector)
+    return
 
 
 def test_eom_kep():
@@ -123,6 +127,7 @@ def test_eom_mee_with_a():
 
 
 if __name__=="__main__":
+    test_u_vector_to_thrust_angles()
     test_eom_kep()
     test_eom_mee_with_a()
     print("Done!")

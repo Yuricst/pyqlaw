@@ -22,7 +22,10 @@ from ._integrate import (
     rk4, 
     rkf45,
 )
-from ._lyapunov import lyapunov_control_angles
+from ._lyapunov import (
+    _u_to_thrust_angles,
+    lyapunov_control_angles
+)
 from ._elements import (
     get_semiMajorAxis,
     get_eccentricity,

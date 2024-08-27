@@ -594,7 +594,8 @@ class QLaw:
             # index update
             idx += 1
 
-        if self.converge == False:
+        # check if exitcode hasn't been assigned yet
+        if (self.converge == False) and (self.exitcode == 0):
             if self.verbosity > 0:
                 print("Could not arrive to target elements within time")
             self.exitcode = -2
