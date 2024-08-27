@@ -39,6 +39,9 @@ The `pyqlaw` module implements the Q-law scheme in two popular orbital elements 
 
 Examples are provided in the `pyqlaw` repository. 
 
+![Fig. 1. Example transfer trajectory from GTO to GEO.\label{fig:traj}](example_3D_trajectory.png)
+
+![Fig. 2. Example state history from GTO to GEO.\label{fig:statehist}](example_3D_state_history.png)
 
 
 # Acknowledgements
