@@ -1,5 +1,5 @@
 ---
-title: 'pyqlaw: Low-Thrust Trajectory Design with Lyapunov Controller in Python'
+title: 'pyqlaw: low-thrust trajectory design with Lyapunov controller in Python'
 tags:
   - Python
   - astrodynamics
@@ -32,16 +32,16 @@ A key enabler for mobility is low-thrust propulsion technology, which enables fu
 Spacecraft transfer design is a challenging problem due to the underlying nonlinearity of the dynamics as well as the non-convexity of the resulting optimal control problem (OCP); there is a long standing literature that applies indirect, direct, or other approaches such as sequential convex programming or differential dynamic programming for tackling this challenge. 
 Many of these methods benefit greatly from a strong, feasible initial guess. 
 In the context of many-revolution transfers, Lyapunov controllers is a powerful approach for constructing feasible and near-optimal solutions. 
-The so-called Q-law [@Petropoulos2003] [@Petropoulos2004] [@Petropoulos2005] consists of using a Lyapunov function defined in terms of orbital elements, and has been used extensively over the last two decades. 
+The so-called Q-law [@Petropoulos2003; @Petropoulos2004; @Petropoulos2005] consists of using a Lyapunov function defined in terms of orbital elements, and has been used extensively over the last two decades. 
 Q-law can generate both the state and control history of the spacecraft, which may be used not only as initial guess for higher fidelity OCP solvers, but also to esimtate for the transfer cost and time between two orbits [@Jagannatha2020] [@Shimane2023] [@Apa2023], or to conduct large-scale trade-studies for parameters such as spacecraft mass or engine properties [@Lee2005]. 
 
 The `pyqlaw` module implements the Q-law scheme in two popular orbital elements representations: Keplerian elements and modified equinoctial elements (MEE). 
 
 Examples are provided in the `pyqlaw` repository. 
 
-![Fig. 1. Example transfer trajectory from GTO to GEO.\label{fig:traj}](example_3D_trajectory.png)
+![Fig. 1. Example transfer trajectory from GTO to GEO.\label{fig:traj}](example_3D_trajectory.png){ width=40% }
 
-![Fig. 2. Example state history from GTO to GEO.\label{fig:statehist}](example_3D_state_history.png)
+![Fig. 2. Example state history from GTO to GEO.\label{fig:statehist}](example_3D_state_history.png){ width=90% }
 
 
 # Acknowledgements
