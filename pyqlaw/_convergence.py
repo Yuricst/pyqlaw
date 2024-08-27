@@ -6,7 +6,6 @@ import copy
 import numpy as np
 from numba import njit
 
-
 @njit
 def check_convergence_keplerian(oe, oeT, woe, tol_oe):
     """Check convergence between oe and oeT for Keplerian elements"""

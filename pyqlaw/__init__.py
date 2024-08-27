@@ -33,8 +33,10 @@ from ._elements import (
     get_period,
     sv2kep, 
     kep2sv,
+    get_orbit_coordinates,
     kep2mee,
     mee2kep,
+    mee2mee_with_a,
     kep2mee_with_a,
     mee_with_a2kep,
     mee_with_a2sv,
@@ -46,7 +48,6 @@ from ._convergence import (
     check_convergence_mee,
     elements_safety
 )
-from ._qlaw import QLaw
 from ._plot_helper import (
     get_sphere_coordinates,
     plot_sphere_wireframe,
@@ -54,3 +55,7 @@ from ._plot_helper import (
     plot_ellipsoid_wireframe,
     set_equal_axis,
 )
+from ._plot_methods import (
+    plot_elements_history,
+)
+from ._qlaw import QLaw

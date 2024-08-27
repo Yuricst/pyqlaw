@@ -84,7 +84,6 @@ def get_omega(state, mu):
     Returns:
         (float): argument of periapsis in radians
     """
-    
     # decompose state to position and velocity vector
     r = state[0:3]
     v = state[3:6]
@@ -97,12 +96,12 @@ def get_omega(state, mu):
     ecc = (1/mu) * np.cross(v,h) - r/la.norm(r)
 
     # compute argument of periapsis
-    if la.norm(ndir)*la.norm(ecc) != 0.0:
+    if np.abs(la.norm(ndir)*la.norm(ecc)) >= 1e-12:
         omega = np.arccos( np.dot(ndir,ecc) / (la.norm(ndir)*la.norm(ecc)) )
         if ecc[2] < 0:
             omega = 2*np.pi - omega
     else:
-        omega = 0.0
+        omega = np.arctan2(ecc[1], ecc[0])
     return omega
 
 
@@ -278,6 +277,7 @@ def mee_with_a2mee(oe_mee_with_a):
     return np.array([p, f,g,h,k,l])
 
 
+@njit
 def mee_with_a2kep(oe_mee_with_a):
     return mee2kep(mee_with_a2mee(oe_mee_with_a))
 
@@ -306,7 +306,7 @@ def kep2mee_with_a(oe_kep):
     return np.array([a,f,g,h,k,l])
 
 
-#@njit
+@njit
 def mee_with_a2sv(mee_with_a, mu):
     """Convert MEE with SMA to Cartesian states"""
     a,f,g,h,k,l = mee_with_a
@@ -325,5 +325,5 @@ def ta2ea(ta,ecc):
 @njit
 def mee2ea(mee):
     ecc = np.sqrt(mee[1]**2 + mee[2]**2)
-    ta = mee[5] - np.arctan2(mee[4],mee[3])
+    ta = mee[5] - np.arctan2(mee[2],mee[1])
     return ta2ea(ta,ecc)
