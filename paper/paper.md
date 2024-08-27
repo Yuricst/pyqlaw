@@ -29,17 +29,22 @@ Making use of `sympy`'s common subexpression elimination [@sympy] and just-in-ti
 
 With emerging space applications such as on-orbit servicing and manufacturing and active debris removal, in-orbit mobility is becoming increasingly important. 
 A key enabler for mobility is low-thrust propulsion technology, which enables fuel-efficient, long duration orbit transfers to reposition the location of a satellite. 
-Spacecraft transfer design is a challenging problem due to the underlying nonlinearity of the dynamics as well as the non-convexity of the resulting optimal control problem; there is a long standing literature that applies indirect, direct, or other approaches such as sequential convex programming or differential dynamic programming for tackling this challenge. 
+Spacecraft transfer design is a challenging problem due to the underlying nonlinearity of the dynamics as well as the non-convexity of the resulting optimal control problem (OCP); there is a long standing literature that applies indirect, direct, or other approaches such as sequential convex programming or differential dynamic programming for tackling this challenge. 
 Many of these methods benefit greatly from a strong, feasible initial guess. 
 In the context of many-revolution transfers, Lyapunov controllers is a powerful approach for constructing feasible and near-optimal solutions. 
 The so-called Q-law [@Petropoulos2003] [@Petropoulos2004] [@Petropoulos2005] consists of using a Lyapunov function defined in terms of orbital elements, and has been used extensively over the last two decades. 
+Q-law can generate both the state and control history of the spacecraft, which may be used not only as initial guess for higher fidelity OCP solvers, but also to esimtate for the transfer cost and time between two orbits [@Jagannatha2020] [@Shimane2023] [@Apa2023], or to conduct large-scale trade-studies for parameters such as spacecraft mass or engine properties. 
 
 The `pyqlaw` module implements the Q-law scheme in two popular orbital elements representations: Keplerian elements and modified equinoctial elements (MEE). 
 
 Examples are provided in the `pyqlaw` repository. 
 
-![](https://raw.githubusercontent.com/yuricst/pyqlaw/main/paper/scan_lines.png)
-**Figure 1.** SONIC can be used to quickly perform a scan and do analysis on an image.
+![](https://raw.githubusercontent.com/yuricst/pyqlaw/main/paper/example_3D_trajectory.png)
+**Figure 1.** Example transfer trajectory from GTO to GEO.
+
+![](https://raw.githubusercontent.com/yuricst/pyqlaw/main/paper/example_3D_trajectory.png)
+**Figure 2.** Example state history from GTO to GEO.
+
 
 # Acknowledgements
 
