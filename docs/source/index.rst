@@ -77,7 +77,7 @@ Some References
    :maxdepth: 1
    :caption: Examples:
 
-   examples/ex_eta_functions.md
+   examples/ex_eta_functions.ipnyb
    examples/ex_thruster_dutycycle.ipynb
    examples/ex_gto_manifold.ipynb
 
