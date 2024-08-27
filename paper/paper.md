@@ -46,6 +46,6 @@ Examples are provided in the `pyqlaw` repository.
 
 # Acknowledgements
 
-We acknowledge helpful comments from Umberto di Capua while making use of this package. 
+We acknowledge helpful comments from Umberto di Capua while developing tutorials for this package. 
 
 # References
