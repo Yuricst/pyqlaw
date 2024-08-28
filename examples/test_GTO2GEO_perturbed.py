@@ -35,7 +35,6 @@ def test_object():
         et_ref, LU, TU,
         use_J2=False,
     )
-    print(f"   perturbations.third_bodies_gms = {perturbations.third_bodies_gms}")
 
     # construct problem
     prob = pyqlaw.QLaw(

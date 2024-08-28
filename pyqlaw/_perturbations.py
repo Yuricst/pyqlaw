@@ -51,6 +51,20 @@ def perturbation_J2(rECI, T_ECI2PA, mu, J2, Re):
     return T_ECI2PA.T @ a_J2_PA
 
 
+def perturbation_SRP(r_sun2sc, AU, k_srp):
+    """Compute solar radiation pressure (SRP) perturbation
+    
+    Args:
+        r_sun2sc (np.array): position vector of spacecraft w.r.t. Sun, in LU
+        AU (float): Astronomical unit, in LU
+        k_srp (float): acceleration magnitude, LU/TU^2
+
+    Returns:
+        (np.array): SRP acceleration
+    """
+    return k_srp * AU**2  * r_sun2sc / np.linalg.norm(r_sun2sc)**3
+
+
 @njit
 def pxformECI2RTN(rECI, vECI):
     """Compute 3-by-3 transformation matrix from ECI to RTN frame
@@ -104,8 +118,13 @@ class SpicePerturbations:
         third_bodies_gms = None,
         J2 = 0.00108263,
         Re_km = 6378.0,
+        P_SRP_SI = 4.56e-6,
+        Cr_SRP = 1.2,
+        Am_SI = 0.01,
         use_J2 = True,
+        use_SRP = True,
     ):
+        # store parameters
         self.et_ref = et_ref
         self.LU = LU
         self.TU = TU
@@ -115,7 +134,11 @@ class SpicePerturbations:
         self.third_bodies_names = third_bodies_names
         self.J2 = J2
         self.Re = Re_km / LU
+        self.k_srp = P_SRP_SI * Cr_SRP * Am_SI / (1e3 * LU/TU**2)
+
+        # flags for turning perturbation terms on/off
         self.use_J2 = use_J2
+        self.use_SRP = use_SRP
 
         # get GM's if not provided
         VU = LU / TU
@@ -150,7 +173,7 @@ class SpicePerturbations:
         acc_ptrb_ECI = np.zeros(3,)
 
         # third-body perturbation in ECI
-        et = self.et_ref + t * self.TU     # time to query kernel
+        et = self.et_ref + t * self.TU     # time to query spice ephemeris
         for mu3,ID in zip(self.third_bodies_gms, self.third_bodies_names):
             pos3_km,_ = spice.spkpos(ID, et, self.frame_qlaw, "NONE", self.obs_id)
             acc_ptrb_ECI += perturbation_third_body_battin(rv_ECI[0:3], pos3_km/self.LU, mu3)
@@ -159,6 +182,12 @@ class SpicePerturbations:
         if self.use_J2:
             T_ECI2PA = spice.pxform(self.frame_qlaw, self.frame_PA, et)
             acc_ptrb_ECI += perturbation_J2(rv_ECI[0:3], T_ECI2PA, self.obs_mu, self.J2, self.Re)
+
+        # SRP perturbation in ECI
+        if self.use_SRP:
+            pos_sun_km,_ = spice.spkpos("10", et, self.frame_qlaw, "NONE", self.obs_id)
+            r_sun2sc = rv_ECI[0:3] - pos_sun_km/self.LU
+            acc_ptrb_ECI += perturbation_SRP(r_sun2sc, spice.convrt(1.0, "AU", "km")/self.LU, self.k_srp)
 
         # transform perturbations to RTN
         T_ECI2RTN = pxformECI2RTN(rv_ECI[0:3], rv_ECI[3:6])
