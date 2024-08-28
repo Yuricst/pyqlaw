@@ -78,15 +78,14 @@ Some References
    :caption: Basic Examples:
 
    examples/ex_GTO2GEO.ipynb
+   examples/ex_LEO_transfer.ipynb
 
 .. toctree::
    :maxdepth: 1
    :caption: Advanced Examples:
 
    examples/ex_eta_functions.ipynb
-
    examples/ex_thruster_dutycycle.ipynb
-
    examples/ex_gto_manifold.ipynb
 
 

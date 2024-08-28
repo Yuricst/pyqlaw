@@ -600,7 +600,7 @@ class QLaw:
             if self.verbosity > 0:
                 print("Could not arrive to target elements within time")
             self.exitcode = -2
-        else:
+        elif self.converge == True:
             if self.verbosity > 0:
                 print("Target elements successfully reached!")
         return
