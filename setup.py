@@ -19,11 +19,11 @@ requires = [
 
 root_dir = path.abspath(path.dirname(__file__))
 
-def _requirements():
-    return [name.rstrip() for name in open(path.join(root_dir, 'environment.yaml')).readlines()]
+# def _requirements():
+#     return [name.rstrip() for name in open(path.join(root_dir, 'environment.yaml')).readlines()]
 
-def _test_requirements():
-    return [name.rstrip() for name in open(path.join(root_dir, 'test-requirements.txt')).readlines()]
+# def _test_requirements():
+#     return [name.rstrip() for name in open(path.join(root_dir, 'test-requirements.txt')).readlines()]
 
 with open(path.join(root_dir, "pyqlaw", '__init__.py')) as f:
     init_text = f.read()

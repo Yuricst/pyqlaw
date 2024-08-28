@@ -10,3 +10,4 @@ dependencies:
   - numba
   - matplotlib
   - tqdm
+  - spiceypy
