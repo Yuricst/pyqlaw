@@ -488,7 +488,7 @@ class QLaw:
             else:
                 u = np.zeros((3,))
                 throttle = 0  # turn off
-                # evaluate Lyapunov function just for psi (FIXME)
+                # evaluate Lyapunov function just for psi
                 _, _, _, psi, q, qdot_current = lyapunov_control_angles(
                     fun_lyapunov_control=self.lyap_fun,
                     mu=self.mu, 
