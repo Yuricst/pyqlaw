@@ -14,6 +14,7 @@ requires = [
     'matplotlib>=3.8.4',
     'scipy>=1.13.0',
     'tqdm>=4.66.4',
+    'spiceypy>=5.1.0',
 ]
 
 root_dir = path.abspath(path.dirname(__file__))
