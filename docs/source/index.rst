@@ -75,7 +75,13 @@ Some References
 
 .. toctree::
    :maxdepth: 1
-   :caption: Examples:
+   :caption: Basic Examples:
+
+   examples/ex_GTO2GEO.ipynb
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Advanced Examples:
 
    examples/ex_eta_functions.ipynb
 
