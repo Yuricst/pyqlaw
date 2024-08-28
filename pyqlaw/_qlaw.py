@@ -91,6 +91,7 @@ class QLaw:
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
         use_sundman (bool): whether to use Sundman transformation for propagation
+        perturbations (SpicePerturbations): object containing perturbation computation scheme
     """
     def __init__(
         self, 
@@ -112,6 +113,7 @@ class QLaw:
         nan_angles_threshold=10,
         print_frequency=200,
         use_sundman=False,
+        perturbations=None,
     ):
         """Construct QLaw object"""
         # dynamics
@@ -185,14 +187,8 @@ class QLaw:
         self.ode_tol = 1.e-5
         self.use_sundman = use_sundman
 
-        # # duty cycles
-        # self.duty_cycle = duty_cycle
-
-        # # battery parameters
-        # self.battery_initial = battery_initial
-        # self.battery_capacity = battery_capacity
-        # self.battery_charge_discharge_rate = battery_charge_discharge_rate
-        # self.require_full_recharge = require_full_recharge
+        # perturbation parameters
+        self.perturbations = perturbations
 
         # print frequency
         self.print_frequency = print_frequency  # print at (# of iteration) % self.print_frequency
@@ -508,10 +504,15 @@ class QLaw:
                     wp=self.wp, 
                     woe=self.woe,
                 )
-                #print(f"throttle = {throttle}")
+            
+            # compute perturbations
+            if self.perturbations is not None:
+                ptrb_RTN = self.perturbations.get_perturbations_RTN(t_iter, oe_iter, self.elements_type)
+            else:
+                ptrb_RTN = np.zeros(3,)
 
             # ODE parameters
-            ode_params = (self.mu, u, psi[0], psi[1], psi[2])  # control fixed in RTN for step
+            ode_params = (self.mu, u, psi[0], psi[1], psi[2], ptrb_RTN)  # control fixed in RTN for step
             if self.integrator == "rk4":
                 oe_next = rk4(
                     self.eom, 

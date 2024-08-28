@@ -10,7 +10,7 @@ from numba import njit
 def eom_kep_gauss(t, state, param):
     """Equations of motion for gauss with keplerian elements"""
     # unpack parameters
-    mu, u, psi_c0, psi_c1, psi_c2 = param
+    mu, u, psi_c0, psi_c1, psi_c2, ptrb_RTN = param
 
     # unpack elements
     sma,ecc,inc,ra,om,ta = state
@@ -35,7 +35,7 @@ def eom_kep_gauss(t, state, param):
     ])
 
     # combine
-    doe = np.dot(psi,u) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, h/r**2])
+    doe = np.dot(psi, u + ptrb_RTN) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, h/r**2])
     return doe
 
 
@@ -43,7 +43,7 @@ def eom_kep_gauss(t, state, param):
 def eom_mee_gauss(t, state, param):
     """Equations of motion for gauss with MEE"""
     # unpack parameters
-    mu, u, psi_c0, psi_c1, psi_c2 = param
+    mu, u, psi_c0, psi_c1, psi_c2, ptrb_RTN = param
     # u = accel*np.array([
     #     np.cos(beta)*np.sin(alpha),
     #     np.cos(beta)*np.cos(alpha),
@@ -68,7 +68,7 @@ def eom_mee_gauss(t, state, param):
     ])
 
     # combine
-    doe = np.dot(psi,u) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, np.sqrt(mu*p)*(w/p)**2])
+    doe = np.dot(psi, u + ptrb_RTN) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, np.sqrt(mu*p)*(w/p)**2])
     return doe
 
 
@@ -76,7 +76,7 @@ def eom_mee_gauss(t, state, param):
 def eom_mee_with_a_gauss(t, state, param):
     """Equations of motion for gauss with MEE"""
     # unpack parameters
-    mu, u, psi_c0, psi_c1, psi_c2 = param
+    mu, u, psi_c0, psi_c1, psi_c2, ptrb_RTN = param
 
     # unpack elements
     sma,f,g,h,k,l = state
@@ -108,38 +108,5 @@ def eom_mee_with_a_gauss(t, state, param):
     ])
 
     # combine
-    doe = np.dot(psi,u) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, np.sqrt(mu*p)*(w/p)**2])
+    doe = np.dot(psi, u + ptrb_RTN) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, np.sqrt(mu*p)*(w/p)**2])
     return doe
-
-
-# @njit
-# def eom_gauss_nonspherical_gravity(t, state, p):
-#     """Equations of motion for gauss with gravitational perturbation"""
-#     # unpack parameters
-#     mu, f, alpha, beta = p
-#     u = f*np.array([
-#         np.cos(beta)*np.sin(alpha),
-#         np.cos(beta)*np.cos(alpha),
-#         np.sin(beta),
-#     ])
-
-#     # unpack elements
-#     sma,ecc,inc,ra,om,ta = state
-
-#     p = sma*(1 - ecc**2)
-#     h = np.sqrt(sma*mu*(1-ecc**2))
-#     r = h**2/(mu*(1+ecc*np.cos(ta)))
-
-#     # Gauss perturbation
-#     psi = np.array([   
-#         [2*sma**2*ecc*np.sin(ta) / h, (2*sma**2*p) / (r*h), 0.0],
-#         [p*np.sin(ta) / h, ( (p + r)*np.cos(ta) + r*ecc ) / h, 0.0],
-#         [0, 0, r*np.cos(ta+om) / h],
-#         [0, 0, r*np.sin(ta+om)/ ( h*np.sin(inc) )],
-#         [-p*np.cos(ta) / ( ecc*h ), (p+r)*np.sin(ta) / ( ecc*h ),  -( r*np.sin(ta+om)*np.cos(inc) ) / ( h*np.sin(inc) )],
-#         [p*np.cos(ta) / ( ecc*h ), - (p+r)*np.sin(ta) / ( ecc*h ), 0],
-#     ])
-
-#     # combine
-#     doe = np.dot(psi,u) + np.array([0.0, 0.0, 0.0, 0.0, 0.0, h/r**2])
-#     return doe

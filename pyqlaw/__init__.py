@@ -10,6 +10,22 @@ __author_email__ = 'yuri.shimane@gatech.edu'
 __url__          = 'https://github.com/Yuricst/pyqlaw'
 
 
+# Let users know if they're missing any of our hard dependencies
+_hard_dependencies = ("numpy", "matplotlib", "scipy", "numba", "sympy", "tqdm", "spiceypy")
+_missing_dependencies = []
+for _dependency in _hard_dependencies:
+    try:
+        __import__(_dependency)
+    except ImportError as _e:  # pragma: no cover
+        _missing_dependencies.append(f"{_dependency}: {_e}")
+
+if _missing_dependencies:  # pragma: no cover
+    raise ImportError(
+        "Unable to import required dependencies:\n" + "\n".join(_missing_dependencies)
+    )
+del _hard_dependencies, _dependency, _missing_dependencies
+
+
 from ._symbolic import (
     symbolic_qlaw_keplerian,
     symbolic_qlaw_mee_with_a,
@@ -60,5 +76,11 @@ from ._plot_helper import (
 )
 from ._plot_methods import (
     plot_elements_history,
+)
+from ._perturbations import (
+    perturbation_third_body_battin,
+    perturbation_J2,
+    pxformECI2RTN,
+    SpicePerturbations,
 )
 from ._qlaw import QLaw

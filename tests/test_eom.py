@@ -54,7 +54,7 @@ def test_eom_kep():
     )
     u = np.array([0.1,0.4,0.2])
     u *= accel_thrust/np.linalg.norm(u)
-    ode_params = (prob.mu, u, psi[0], psi[1], psi[2])
+    ode_params = (prob.mu, u, psi[0], psi[1], psi[2], np.zeros(3,))
 
     # known check case
     doe_check = np.array([
@@ -109,7 +109,7 @@ def test_eom_mee_with_a():
     )
     u = np.array([0.1,0.4,0.2])
     u *= accel_thrust/np.linalg.norm(u)
-    ode_params = (prob.mu, u, psi[0], psi[1], psi[2])
+    ode_params = (prob.mu, u, psi[0], psi[1], psi[2], np.zeros(3,))
 
     # known check case
     doe_check = np.array([

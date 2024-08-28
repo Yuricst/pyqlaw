@@ -29,7 +29,7 @@ pip uninstall pyqlaw
 
 The package depends on the following basic python modules:
 
-- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `scipy`
+- `sympy`, `numpy`, `tqdm`, `matplotilb`, `numba`, `scipy`, `spiceypy`
 
 
 ## Overview of Q-law
