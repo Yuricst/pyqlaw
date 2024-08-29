@@ -36,7 +36,6 @@ The so-called Q-law [@Petropoulos2003; @Petropoulos2004; @Petropoulos2005] consi
 Q-law can generate both the state and control history of the spacecraft, which may be used not only as initial guess for higher fidelity OCP solvers, but also to esimtate for the transfer cost and time between two orbits [@Jagannatha2020; @Shimane2023; @Apa2023], or to conduct large-scale trade-studies for parameters such as spacecraft mass or engine properties [@Lee2005; @Shimane2023c]. 
 
 The `pyqlaw` module implements the Q-law scheme in two popular orbital elements representations: Keplerian elements and modified equinoctial elements (MEE). 
-
 Examples are provided in the `pyqlaw` repository. 
 
 ![Example transfer trajectory from GTO to GEO.\label{fig:traj}](example_3D_trajectory.png){ width=70% }

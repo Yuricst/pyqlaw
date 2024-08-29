@@ -31,6 +31,7 @@ and to uninstall::
 Overview of Q-law
 -----------------
 
+Q-law is a Lyapunov controller defined in terms of orbital elements, and can be used as a feedback controller to construct suboptimal low-thrust, many-revolution transfers. 
 Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
 In general, the following should be kept in mind:
 
