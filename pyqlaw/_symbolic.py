@@ -12,7 +12,14 @@ from sympy import lambdify
 
 
 def symbolic_qlaw_keplerian(cse = True):
-    """Generate symbolic function for Keplerian Q-Law"""
+    """Generate symbolic function for Keplerian Q-Law
+
+    Args:
+        cse (bool): whether to use common subexpression elimination
+    
+    Returns:
+        (tuple): fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
+    """
     # define parameters
     rpmin, k_petro, m_petro, n_petro, r_petro, b_petro = sym.symbols("rpmin k_petro m_petro n_petro r_petro b_petro")
     wp = sym.symbols("Wp")
@@ -192,8 +199,22 @@ def symbolic_qlaw_keplerian(cse = True):
 
 
 
-def symbolic_qlaw_mee_with_a(cse = True):
-    """Generate symbolic function for Keplerian Q-Law"""
+def symbolic_qlaw_mee_with_a(cse = True, grid_fgdot = True):
+    """Generate symbolic function for MEE-SMA Q-Law.
+    If `grid_fgdot` is set to True, use the grid-based accurate fdot_max and gdot_max computation from [1].
+    
+    Ref:
+    [1] S. Narayanaswamy and C. J. Damaren, “Equinoctial Lyapunov Control Law for Low-Thrust Rendezvous,”
+    J. Guid. Control. Dyn., vol. 46, no. 4, pp. 781–795, 2023, doi: 10.2514/1.G006662.
+
+
+    Args:
+        cse (bool): whether to use common subexpression elimination
+        grid_fgdot (bool): whether to use grid fgdot computation
+
+    Returns:
+        (tuple): fun_lyapunov_control, fun_eval_psi, fun_eval_dqdoe, fun_eval_dqdt
+    """
     # define parameters
     rpmin, k_petro, m_petro, n_petro, r_petro, b_petro = sym.symbols("rpmin k_petro m_petro n_petro r_petro b_petro")
     wp = sym.symbols("Wp")
@@ -238,8 +259,31 @@ def symbolic_qlaw_mee_with_a(cse = True):
         # compute oedot
         sqrt_pmu = sym.sqrt(p/mu)
         adot_xx = 2*accel*a*sym.sqrt(a/mu) * sym.sqrt((1 + sym.sqrt(f**2 + g**2)) / (1 - sym.sqrt(f**2 + g**2)))
-        fdot_xx = 2*accel*sqrt_pmu
-        gdot_xx = 2*accel*sqrt_pmu
+        if grid_fgdot:
+            print(f"grid_fgdot = {grid_fgdot}")
+            # create grid of L
+            L_try = np.linspace(0, 2*np.pi, 100)
+            fdot_xx = accel*sqrt_pmu * min([
+                # sym.sqrt(
+                #     (f+sym.sin(L)*((1 + f*sym.cos(L) + g*sym.sin(L))+1))**2 +\
+                #         (1 + f*sym.cos(L) + g*sym.sin(L))**2*sym.sin(L)**2 +\
+                #         g**2*(k*sym.cos(L) - h*sym.sin(L))**2
+                # )/(1 + f*sym.cos(L) + g*sym.sin(L))
+                L*2
+                for L in L_try
+            ])
+            gdot_xx = accel*sqrt_pmu * min([
+                # sym.sqrt(
+                #     (g+sym.sin(L)*((1 + f*sym.cos(L) + g*sym.sin(L))+1))**2 +\
+                #         (1 + f*sym.cos(L) + g*sym.sin(L))**2*sym.sin(L)**2 +\
+                #         f**2*(k*sym.cos(L) - h*sym.sin(L))**2
+                # )/(1 + f*sym.cos(L) + g*sym.sin(L))
+                L*2
+                for L in L_try
+            ])
+        else:
+            fdot_xx = 2*accel*sqrt_pmu
+            gdot_xx = 2*accel*sqrt_pmu
         hdot_xx = 0.5*accel*sqrt_pmu * s_squared/(sym.sqrt(1 - g**2) + f)
         kdot_xx = 0.5*accel*sqrt_pmu * s_squared/(sym.sqrt(1 - f**2) + g)
         oedot = [
@@ -314,36 +358,6 @@ def symbolic_qlaw_mee_with_a(cse = True):
         dqdoe = [dqdoe0, dqdoe1, dqdoe2, dqdoe3, dqdoe4]
 
         # # compute thrust vector components
-        # u_unscaled = [
-        #     psi[0][0]*dqdoe0 + psi[0][1]*dqdoe1 + psi[0][2]*dqdoe2 + psi[0][3]*dqdoe3 + psi[0][4]*dqdoe4,
-        #     psi[1][0]*dqdoe0 + psi[1][1]*dqdoe1 + psi[1][2]*dqdoe2 + psi[1][3]*dqdoe3 + psi[1][4]*dqdoe4,
-        #     psi[2][0]*dqdoe0 + psi[2][1]*dqdoe1 + psi[2][2]*dqdoe2 + psi[2][3]*dqdoe3 + psi[2][4]*dqdoe4
-        # ]
-        # u_unscaled_norm = sym.sqrt(u_unscaled[0]**2 + u_unscaled[1]**2 + u_unscaled[2]**2)
-        # ux = u_unscaled[0]/u_unscaled_norm
-        # uy = u_unscaled[0]/u_unscaled_norm
-        # uz = u_unscaled[0]/u_unscaled_norm
-
-        # # compute thrust angles
-        # alpha = sym.atan2(-ux,-uy)
-        # beta = sym.atan(-uz/sym.sqrt(ux**2 + uy**2))
-
-        # # compute thrust vector
-        # # thrust_vec = [
-        # #     accel* sym.cos(beta)*sym.sin(alpha),
-        # #     accel* sym.cos(beta)*sym.cos(alpha),
-        # #     accel* sym.sin(beta),
-        # # ]
-
-        # fun_lyapunov_control = lambdify(
-        #     [
-        #         mu, accel, oe, oeT, rpmin, m_petro, n_petro, r_petro, 
-        #         b_petro, k_petro, wp, woe
-        #     ], 
-        #     [psi, qdot, alpha, beta], 
-        #     "numpy",
-        # )
-
         ux = (psi[0][0]*dqdoe0 + psi[0][1]*dqdoe1 + psi[0][2]*dqdoe2 + psi[0][3]*dqdoe3 + psi[0][4]*dqdoe4)
         uy = (psi[1][0]*dqdoe0 + psi[1][1]*dqdoe1 + psi[1][2]*dqdoe2 + psi[1][3]*dqdoe3 + psi[1][4]*dqdoe4)
         uz = (psi[2][0]*dqdoe0 + psi[2][1]*dqdoe1 + psi[2][2]*dqdoe2 + psi[2][3]*dqdoe3 + psi[2][4]*dqdoe4)
