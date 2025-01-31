@@ -91,7 +91,7 @@ class QLaw:
         nan_angles_threshold (int): number of times to ignore `nan` thrust angles
         print_frequency (int): if verbosity >= 2, prints at this frequency
         use_sundman (bool): whether to use Sundman transformation for propagation
-        perturbations (SpicePerturbations): object containing perturbation computation scheme
+        perturbations (SpicePerturbations or None): object containing perturbation computation scheme
     """
     def __init__(
         self, 
