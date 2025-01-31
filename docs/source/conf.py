@@ -30,7 +30,7 @@ with open(path.join("../../", "pyqlaw", '__init__.py')) as f:
     author_email = re.search(r'__author_email__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
     url = re.search(r'__url__\s*=\s*[\'\"](.+?)[\'\"]', init_text).group(1)
 
-copyright = "2023 Yuri Shimane"
+copyright = "2025 Yuri Shimane"
 
 # -- General configuration ---------------------------------------------------
 
