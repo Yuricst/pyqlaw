@@ -3,7 +3,7 @@ init file for module
 """
 
 __copyright__    = 'Copyright (C) 2025 Yuri Shimane'
-__version__      = '0.2.1'
+__version__      = '0.2.2'
 __license__      = 'MIT License'
 __author__       = 'Yuri Shimane'
 __author_email__ = 'yuri.shimane@gatech.edu'
