@@ -134,12 +134,12 @@ fig2, ax2 = prob.plot_trajectory_3d()
 
 ## Reporting issues
 
-If you found a bug in `pyqlaw`, please report it by creating a new issue on [the repository](https://github.com/Yuricst/pyqlaw/). 
+If you find a bug in `pyqlaw`, please report it by creating a new issue on [the repository](https://github.com/Yuricst/pyqlaw/). 
 Please make sure to include an example the demonstrates the issue. 
 
 ## Contributing
 
-If you have an idea for improving the module, please submid an issue with your proposal for enahncement. 
+If you have an idea for improving the module, please feel free to submit an issue with your proposal for enahncement!
 
 
 ## References
