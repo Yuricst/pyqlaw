@@ -18,7 +18,7 @@ def test_object():
 
     # construct problem
     prob = pyqlaw.QLaw(
-        integrator="rk4", 
+        integrator="rkf45", 
         elements_type="mee_with_a",
         verbosity=2,
         print_frequency=3000,

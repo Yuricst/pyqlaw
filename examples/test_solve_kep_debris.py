@@ -43,7 +43,7 @@ def test_object():
     prob.pretty()
 
     # solve
-    prob.solve()
+    prob.solve(eta_a=0.0)
     prob.pretty_results()
 
     # plot

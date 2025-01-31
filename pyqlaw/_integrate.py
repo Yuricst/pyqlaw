@@ -20,9 +20,9 @@ def rk4(rhs, t, h, y, p):
         (np.array); state-vector at time t+h
     """
     k1 = rhs(t, y, p)
-    k2 = rhs(t + 0.5 * h, y + 0.5 * k1, p)
-    k3 = rhs(t + 0.5 * h, y + 0.5 * k2, p)
-    k4 = rhs(t + h, y + k3, p)
+    k2 = rhs(t + 0.5 * h, y + h * 0.5 * k1, p)
+    k3 = rhs(t + 0.5 * h, y + h * 0.5 * k2, p)
+    k4 = rhs(t + h, y + h * k3, p)
     return y + (h / 6.0)*(k1 + 2*k2 + 2*k3 + k4)
 
 

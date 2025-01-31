@@ -62,13 +62,13 @@ def test_rk4_rk45():
     ynext_rk4 = pyqlaw.rk4(pyqlaw.eom_kep_gauss, 0.0, h, oe0, ode_params)
     ynext_rk45, h_next = pyqlaw.rkf45(pyqlaw.eom_kep_gauss, 0.0, h, oe0, ode_params)
     assert all(np.abs(ynext_rk4[0:4] - ynext_rk45[0:4]) <= 1e-6)
-    assert np.abs(ynext_rk4[5] - ynext_rk45[5]) <= 1e-3
+    assert np.abs(ynext_rk4[5] - ynext_rk45[5]) <= 1e-5
 
     # evaluate eom (pure python)
     ynext_rk4 = pyqlaw.rk4.py_func(pyqlaw.eom_kep_gauss, 0.0, h, oe0, ode_params)
     ynext_rk45, h_next = pyqlaw.rkf45.py_func(pyqlaw.eom_kep_gauss, 0.0, h, oe0, ode_params)
     assert all(np.abs(ynext_rk4[0:4] - ynext_rk45[0:4]) <= 1e-6)
-    assert np.abs(ynext_rk4[5] - ynext_rk45[5]) <= 1e-3
+    assert np.abs(ynext_rk4[5] - ynext_rk45[5]) <= 1e-5
     return 
 
 
