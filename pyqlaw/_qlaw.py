@@ -614,7 +614,7 @@ class QLaw:
             accel_thrust (float): acceleration magnitude, tmax/mass
 
         Returns:
-            (tuple): min and max Qdot
+            (tuple): min and max Qdot for defining efficiency
         """
         # evaluate qdot at current as well as for all anomalies
         eval_pts = np.linspace(oe[5], oe[5]+2*np.pi, self.anomaly_grid_size+1)[1:]
@@ -636,7 +636,8 @@ class QLaw:
                     self.wp, self.woe
                 )
             )
-        return min(qdot_list), max(qdot_list)
+        # we return max and min since qdot is defined to be positive
+        return max(qdot_list), min(qdot_list)
     
 
     def interpolate_states(self, kind="quadratic"):

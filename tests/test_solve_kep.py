@@ -36,7 +36,7 @@ def test_solve_kep(close_figures=True):
         prob.pretty()
 
         # solve
-        prob.solve()
+        prob.solve(eta_a=0.2)
         prob.pretty_results()
 
         # plot
