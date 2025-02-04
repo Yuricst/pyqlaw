@@ -542,7 +542,28 @@ class QLaw:
                 t_step_local = max(self.step_min, min(self.step_max,h_next))
             else:
                 raise ValueError("integrator name invalid!")
-                
+            
+            # update battery
+            if duty:
+                battery_iter = np.clip(battery_iter-self.battery_charge_discharge_rate[1]*t_step_local,
+                                       self.battery_capacity[0], self.battery_capacity[1])
+            else:
+                battery_iter = np.clip(battery_iter+self.battery_charge_discharge_rate[0]*t_step_local,
+                                       self.battery_capacity[0], self.battery_capacity[1])
+                if battery_iter == self.battery_capacity[1]:
+                    charging = False        # turn OFF charging mode
+            
+            # store current state etc.
+            self.times.append(t_iter)
+            self.states.append(oe_iter)
+            self.masses.append(mass_iter)
+            self.controls.append([alpha, beta, throttle])
+            self.etas.append([val_eta_a, val_eta_r])
+            self.etas_bounds.append([eta_a_current, eta_r_current])
+            self.Qs.append(q)
+            self.dQdts.append(qdot_current)
+            self.battery.append(battery_iter)
+
             # check convergence
             if self.check_convergence(oe_next, self.oeT, self.woe, self.tol_oe) == True:
                 self.exitcode = 1
@@ -570,27 +591,6 @@ class QLaw:
                     print("Breaking as mass is now under mass_min")
                 self.exitcode = -1
                 break
-
-            # store
-            self.times.append(t_iter)
-            self.states.append(oe_iter)
-            self.masses.append(mass_iter)
-            self.controls.append([alpha, beta, throttle])
-            self.etas.append([val_eta_a, val_eta_r])
-            self.etas_bounds.append([eta_a_current, eta_r_current])
-            self.Qs.append(q)
-            self.dQdts.append(qdot_current)
-
-            # update battery
-            if duty:
-                battery_iter = np.clip(battery_iter-self.battery_charge_discharge_rate[1]*t_step_local,
-                                       self.battery_capacity[0], self.battery_capacity[1])
-            else:
-                battery_iter = np.clip(battery_iter+self.battery_charge_discharge_rate[0]*t_step_local,
-                                       self.battery_capacity[0], self.battery_capacity[1])
-                if battery_iter == self.battery_capacity[1]:
-                    charging = False        # turn OFF charging mode
-            self.battery.append(battery_iter)
 
             # index update
             idx += 1
