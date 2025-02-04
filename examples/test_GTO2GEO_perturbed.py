@@ -20,6 +20,7 @@ spice.furnsh(os.path.join(os.getenv("SPICE"), "pck", "gm_de440.tpc"))
 spice.furnsh(os.path.join(os.getenv("SPICE"), "pck", "earth_200101_990825_predict.bpc"))
 spice.furnsh(os.path.join(os.getenv("SPICE"), "fk", "earth_assoc_itrf93.tf"))
 
+plt.rcParams.update({'font.size': 15})
 
 def test_object():
     tstart = time.time()
@@ -31,10 +32,7 @@ def test_object():
 
     # initialize object for perturbations
     et_ref = spice.str2et("2028-01-01T00:00:00")
-    perturbations = pyqlaw.SpicePerturbations(
-        et_ref, LU, TU,
-        use_J2=False,
-    )
+    perturbations = pyqlaw.SpicePerturbations(et_ref, LU, TU)
 
     # construct problem
     prob = pyqlaw.QLaw(
@@ -44,6 +42,7 @@ def test_object():
         print_frequency=3000,
         use_sundman = True,
         perturbations = perturbations,
+        relaxed_tol_factor = 1,
     )
     # initial and final elements: [a,e,i,RAAN,omega,ta]
     KEP0 = np.array([
@@ -69,7 +68,7 @@ def test_object():
     tmax = 0.0149
     mdot = 0.0031
     tf_max = 10000.0
-    t_step = np.deg2rad(5)
+    t_step = np.deg2rad(2)
 
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
@@ -84,9 +83,18 @@ def test_object():
     # plot
     fig1, ax1 = prob.plot_elements_history(to_keplerian=False)
     fig2, ax2 = prob.plot_trajectory_3d(sphere_radius=0.1)
+    ax2.set(xlabel="x, LU", ylabel="y, LU", zlabel="z, LU")
     fig3, ax3 = prob.plot_controls()
     fig4, ax4 = prob.plot_efficiency()
     fig5, ax5 = prob.plot_Q()
+
+    # save
+    fig2.savefig(os.path.join(os.path.dirname(__file__),
+                             "../paper/example_3D_trajectory.png"))
+    fig1.savefig(os.path.join(os.path.dirname(__file__),
+                             "../paper/example_state_history.png"), bbox_inches='tight')
+    fig3.savefig(os.path.join(os.path.dirname(__file__),
+                             "../paper/example_control_history.png"), bbox_inches='tight')
 
     # export state history as initial guess for ICLOCS2
     #prob.save_to_dict('initial_guess_GTO2GEO.json')

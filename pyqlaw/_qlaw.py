@@ -92,6 +92,8 @@ class QLaw:
         print_frequency (int): if verbosity >= 2, prints at this frequency
         use_sundman (bool): whether to use Sundman transformation for propagation
         perturbations (SpicePerturbations or None): object containing perturbation computation scheme
+        relaxed_tol_factor (float): factor to relax tolerance
+        exit_at_relaxed (int): number of times to clear relaxed condition before exiting
     """
     def __init__(
         self, 
@@ -114,8 +116,11 @@ class QLaw:
         print_frequency=200,
         use_sundman=False,
         perturbations=None,
+        relaxed_tol_factor = 10,
+        exit_at_relaxed = 100,
     ):
         """Construct QLaw object"""
+        assert relaxed_tol_factor >= 1, "relaxed_tol_factor must be >= 1"
         # dynamics
         self.mu = mu
 
@@ -140,8 +145,8 @@ class QLaw:
         else:
             assert len(tol_oe)==5, "tol_oe must have 5 components"
             self.tol_oe = np.array(tol_oe)
-        self.tol_oe_relaxed = 10*self.tol_oe  # relaxed tolerance
-        self.exit_at_relaxed = 25
+        self.tol_oe_relaxed = relaxed_tol_factor*self.tol_oe  # relaxed tolerance
+        self.exit_at_relaxed = exit_at_relaxed
 
         # orbital elements bounds
         if oe_min is None:
@@ -661,7 +666,7 @@ class QLaw:
             # interpolate orbital elements
             f_a, f_e, f_i, f_r, f_o, f_t = self.interpolate_states(kind=kind)
             if steps is None:
-                steps = min(8000, abs(int(round(self.times[-1]/0.1))))
+                steps = min(8000, abs(int(round(self.times[-1]/0.02))))
                 print(f"Using {steps} steps for evaluation")
             t_evals = np.linspace(self.times[0], self.times[-1], steps)
             cart = np.zeros((6,steps))
