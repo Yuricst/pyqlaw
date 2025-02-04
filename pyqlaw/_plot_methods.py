@@ -262,7 +262,8 @@ def plot_Q(self, figsize=(9,6), TU=1.0, time_unit_name="TU"):
     """
     fig, ax = plt.subplots(1,1,figsize=figsize)
     ax.step(np.array(self.times[0:-1])*TU, np.array(self.Qs), label="Q")
-    ax.step(np.array(self.times[0:-1])*TU, np.array(self.dQdts), label="|dQ/dt|, [1/TU]")
+    ax.step(np.array(self.times[0:-1])*TU, np.array(self.dQdts),
+            label="|dQ/dt|, [1/TU]")
     ax.grid(True, alpha=0.3)
     ax.set(yscale="log")
     ax.legend()

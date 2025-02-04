@@ -81,7 +81,7 @@ class QLaw:
         b_petro (float): scalar factor b for dot(omega)_xx, default is 0.01
         wp (float): penalty scalar on minimum periapsis, default is 1.0
         elements_type (str): type of elements to define Q-law
-        integrator (str): "rk4" or "rkf45"
+        integrator (str): `"rk4"` or `"rkf45"`
         verbosity (int): verbosity level for Q-law
         anomaly_grid_size (int): number of evaluation point along orbit for Q-law effectivity
         disable_tqdm (bool): whether to disable progress bar
@@ -92,32 +92,40 @@ class QLaw:
         print_frequency (int): if verbosity >= 2, prints at this frequency
         use_sundman (bool): whether to use Sundman transformation for propagation
         perturbations (SpicePerturbations or None): object containing perturbation computation scheme
+        reduce_step_near_convergence (bool): whether to reduce step size near convergence
         relaxed_tol_factor (float): factor to relax tolerance
         exit_at_relaxed (int): number of times to clear relaxed condition before exiting
+        step_min (float): minimum integration step-size, used only if `integrator = "rkf45"`
+        step_max (float): maximum integration step-size, used only if `integrator = "rkf45"`
+        ode_tol (float): tolerance for ODE integration, used only if `integrator = "rkf45"`
     """
     def __init__(
         self, 
-        mu=1.0,
-        rpmin=0.1, 
-        k_petro=1.0, 
-        m_petro=3.0, 
-        n_petro=4.0, 
-        r_petro=2.0, 
-        b_petro=0.01,
-        wp=1.0,
-        elements_type="mee_with_a",
-        integrator="rk4",
-        verbosity=1,
-        anomaly_grid_size=5,
-        tol_oe=None,
-        oe_min=None,
-        oe_max=None,
-        nan_angles_threshold=10,
-        print_frequency=200,
-        use_sundman=False,
-        perturbations=None,
+        mu = 1.0,
+        rpmin = 0.1, 
+        k_petro = 1.0, 
+        m_petro = 3.0, 
+        n_petro = 4.0, 
+        r_petro = 2.0, 
+        b_petro = 0.01,
+        wp = 1.0,
+        elements_type = "mee_with_a",
+        integrator = "rk4",
+        verbosity = 1,
+        anomaly_grid_size = 5,
+        tol_oe = None,
+        oe_min = None,
+        oe_max = None,
+        nan_angles_threshold = 10,
+        print_frequency = 200,
+        use_sundman = False,
+        perturbations = None,
+        reduce_step_near_convergence = True,
         relaxed_tol_factor = 10,
         exit_at_relaxed = 100,
+        step_min = 1e-4,
+        step_max = 2.0,
+        ode_tol = 1.e-5,
     ):
         """Construct QLaw object"""
         assert relaxed_tol_factor >= 1, "relaxed_tol_factor must be >= 1"
@@ -136,7 +144,7 @@ class QLaw:
         self.integrator = integrator
         self.anomaly_grid_size = anomaly_grid_size
 
-        # settings
+        # whether to print iteration information
         self.verbosity = verbosity
 
         # tolerance for convergence
@@ -187,10 +195,11 @@ class QLaw:
             self.check_convergence = check_convergence_mee
 
         # max and min step sizes used with adaptive step integrators
-        self.step_min = 1e-4
-        self.step_max = 2.0
-        self.ode_tol = 1.e-5
+        self.step_min = step_min
+        self.step_max = step_max
+        self.ode_tol = ode_tol
         self.use_sundman = use_sundman
+        self.reduce_step_near_convergence = reduce_step_near_convergence
 
         # perturbation parameters
         self.perturbations = perturbations
@@ -350,6 +359,7 @@ class QLaw:
         self.times  = [t_iter,]
         self.states = [oe_iter,]
         self.masses = [mass_iter,]
+        self.accels = []
         self.controls = []
         self.etas = []
         self.etas_bounds = []
@@ -366,6 +376,7 @@ class QLaw:
         t_last_ON  = 0.0
         t_last_OFF = 0.0
         charging = False
+        step_size_level = 0     # how close we are to convergence dictates step-size; start with 0
 
         # iterate until nmax
         idx = 0
@@ -385,17 +396,19 @@ class QLaw:
                     ecc_iter = np.sqrt(oe_iter[1]**2 + oe_iter[2]**2)
                     E0 = mee2ea(oe_iter)
                     period = 2*np.pi*np.sqrt(oe_iter[0]**3/self.mu)
-                E1 = E0 + self.t_step
+                E1 = E0 + self.t_step   # provided t_step is in radians of eccentric anomaly
 
                 # compute mean anomaly
                 M0 = E0 - ecc_iter*np.sin(E0)
                 M1 = E1 - ecc_iter*np.sin(E1)
+
+                # compute resulting time-step in TU
                 if M1 > M0:
                     t_step_local = (M1/(2*np.pi) - M0/(2*np.pi)) * period
                 else:
                     t_step_local = (M1/(2*np.pi) + 1 - M0/(2*np.pi)) * period
             else:
-                t_step_local = self.t_step
+                t_step_local = self.t_step  # provided t_step is in TU
 
             # evaluate duty cycle
             if ((t_iter - t_last_ON) > self.duty_cycle[0]) and (duty is True):
@@ -475,6 +488,9 @@ class QLaw:
                         eta_r_current = eta_r
                     elif callable(eta_r):               # `eta_r` is a callable function
                         eta_r_current = eta_r(t_iter, oe_iter, mass_iter, battery_iter)
+
+                    # overwrite eta_a and eta_r if close to convergence
+                    # TODO ... if (self.Qs[-1] < np.sqrt(np.sum(self.woe)))
 
                     # check effectivity to decide whether to thrust or coast
                     if eta_r_current > 0 or eta_a_current > 0:
@@ -562,6 +578,7 @@ class QLaw:
             self.times.append(t_iter)
             self.states.append(oe_iter)
             self.masses.append(mass_iter)
+            self.accels.append(accel_thrust)
             self.controls.append([alpha, beta, throttle])
             self.etas.append([val_eta_a, val_eta_r])
             self.etas_bounds.append([eta_a_current, eta_r_current])
@@ -596,6 +613,20 @@ class QLaw:
                     print("Breaking as mass is now under mass_min")
                 self.exitcode = -1
                 break
+
+            # time-step adjustment due to convergence
+            if (self.reduce_step_near_convergence is True) and\
+               (self.Qs[-1] < np.sqrt(np.sum(self.woe))) and\
+               (step_size_level == 0):  # if we are converging
+                print(f"    >>> Q = {self.Qs[-1]:1.2e} at t = {t_iter:1.2f}, shifting step_size_level to 1")
+                self.t_step *= 0.75
+                step_size_level = 1
+            elif (self.reduce_step_near_convergence is True) and\
+                 (self.Qs[-1] < 0.05 * np.sqrt(np.sum(self.woe))) and\
+                 (step_size_level == 1):  # if we are converging
+                print(f"    >>> Q = {self.Qs[-1]:1.2e} at t = {t_iter:1.2f}, shifting step_size_level to 2")
+                self.t_step *= 0.75
+                step_size_level = 2
 
             # index update
             idx += 1
