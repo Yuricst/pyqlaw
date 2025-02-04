@@ -1,5 +1,5 @@
 """
-Test for constructing QLaw object
+test with case B from Varga and Perez, 2016.
 """
 
 
@@ -26,7 +26,7 @@ def test_object():
     tstart = time.time()
     # reference quantities
     MU_EARTH = spice.bodvrd("399", "GM", 1)[1][0]
-    LU = 42164.0
+    LU = 42165.0
     VU = np.sqrt(MU_EARTH / LU)
     TU = LU / VU
 
@@ -46,27 +46,33 @@ def test_object():
     )
     # initial and final elements: [a,e,i,RAAN,omega,ta]
     KEP0 = np.array([
-        (6578+42164)/2/LU,
-        (42164-6578)/(42164+6578),
-        np.deg2rad(28.5),
-        np.deg2rad(10), np.deg2rad(270), np.deg2rad(50)
+        24505.9/LU,
+        0.725,
+        np.deg2rad(7.05),
+        0.0, np.deg2rad(270), 0.0
     ])
     KEPF = np.array([
-        42164/LU,
-        1e-3,
-        np.deg2rad(1e-3),
-        np.deg2rad(10), np.deg2rad(30), np.deg2rad(50)
+        42165.0/LU,
+        0.001,
+        np.deg2rad(0.05),
+        np.deg2rad(10), np.deg2rad(10), np.deg2rad(10),
     ])
     oe0 = pyqlaw.kep2mee_with_a(np.array(KEP0))
     oeT = pyqlaw.kep2mee_with_a(np.array(KEPF))
     print(f"oe0: {oe0}")
     print(f"oeT: {oeT}")
-    woe = [3.0, 1.0, 1.0, 1.0, 1.0]
+    woe = [1.0, 1.0, 1.0, 1.0, 1.0]
 
     # spacecraft parameters
+    MU = 2000
+    tmax_si = 1.0 #0.35   # N
+    isp_si  = 2000   # seconds
+    mdot_si = tmax_si/(isp_si*9.81)  # kg/s
+
+    # non-dimensional quantities
     mass0 = 1.0
-    tmax = 0.0149/2
-    mdot = 0.0031
+    tmax = tmax_si * (1/MU)*(TU**2/(1e3*LU))
+    mdot = np.abs(mdot_si) *(TU/MU)
     tf_max = 10000.0
     t_step = np.deg2rad(2)
 
@@ -88,13 +94,13 @@ def test_object():
     fig4, ax4 = prob.plot_efficiency()
     fig5, ax5 = prob.plot_Q()
 
-    # save
-    fig2.savefig(os.path.join(os.path.dirname(__file__),
-                             "../paper/example_3D_trajectory.png"))
-    fig1.savefig(os.path.join(os.path.dirname(__file__),
-                             "../paper/example_state_history.png"), bbox_inches='tight')
-    fig3.savefig(os.path.join(os.path.dirname(__file__),
-                             "../paper/example_control_history.png"), bbox_inches='tight')
+    # # save
+    # fig2.savefig(os.path.join(os.path.dirname(__file__),
+    #                          "../paper/example_3D_trajectory.png"))
+    # fig1.savefig(os.path.join(os.path.dirname(__file__),
+    #                          "../paper/example_state_history.png"), bbox_inches='tight')
+    # fig3.savefig(os.path.join(os.path.dirname(__file__),
+    #                          "../paper/example_control_history.png"), bbox_inches='tight')
 
     # export state history as initial guess for ICLOCS2
     #prob.save_to_dict('initial_guess_GTO2GEO.json')

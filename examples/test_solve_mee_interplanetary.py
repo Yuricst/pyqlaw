@@ -38,7 +38,7 @@ def test_object():
     tmax = 1e-2
     mdot = 1e-3
     tf_max = 2000.0
-    t_step = 0.1
+    t_step = 0.01
     # set problem
     prob.set_problem(oe0, oeT, mass0, tmax, mdot, tf_max, t_step, woe=woe)
     prob.pretty()

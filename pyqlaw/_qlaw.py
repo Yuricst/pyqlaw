@@ -666,7 +666,7 @@ class QLaw:
             # interpolate orbital elements
             f_a, f_e, f_i, f_r, f_o, f_t = self.interpolate_states(kind=kind)
             if steps is None:
-                steps = min(8000, abs(int(round(self.times[-1]/0.02))))
+                steps = min(8000, abs(int(round(self.times[-1]/0.01))))
                 print(f"Using {steps} steps for evaluation")
             t_evals = np.linspace(self.times[0], self.times[-1], steps)
             cart = np.zeros((6,steps))
