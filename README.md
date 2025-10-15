@@ -35,7 +35,7 @@ The package depends on the following basic python modules:
 ## Overview of Q-law
 
 Q-law is a Lyapunov controller defined in terms of orbital elements, and can be used as a feedback controller to construct suboptimal low-thrust, many-revolution transfers. 
-Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparamters, which must be chosen carefully. 
+Q-law is very sensitive to the problem (initial & final orbital elements, choice of orbital elements, thruster specs = control authority) as well as its various hyperparameters, which must be chosen carefully. 
 In general, the following should be kept in mind:
 
 - For numerical stability, always work with canonical scales.
@@ -57,7 +57,7 @@ Test files are included in `./tests/`. Here, we present a basic example. Before 
 
 - Dynamics & spacecraft parameters are given in non-dimensional quantities, scaling `GM = 1.0` (which may be modified, but it is numerically desirable to use this scaling). 
 - All angles are defined in radians.
-- Due to instability of Gauss's equation and the Lyapunov feedback control law, some of the elements should not be smaller in magnitude than a certain safe-guarding threshold value. This is why some of the starting elements in the following example are not set to 0, but a mild value (e.g. `1e-2`, `1e-3`). 
+- Due to the instability of Gauss's equation and the Lyapunov feedback control law, some of the elements should not be smaller in magnitude than a certain safeguarding threshold value. This is why some of the starting elements in the following example are not set to 0, but a mild value (e.g. `1e-2`, `1e-3`). 
 
 We start by importing the module
 
@@ -65,7 +65,7 @@ We start by importing the module
 import pyqlaw
 ```
 
-Construct initial and final Keplrian elements to target, along with weighting
+Construct initial and final Keplerian elements to target, along with weighting
 
 ```python
 # initial and final elements (always in order: [SMA, ECC, INC, RAAN, AOP, TA])
@@ -74,7 +74,7 @@ oeT = np.array([1.1, 5e-3, 0.2, 0.0, 0.0])
 woe = [1.0, 1.0, 1.0, 1.0, 0.0]
 ```
 
-Provide spacecraft parameters (max thrust and mass-flow rate), max transfer time, and time-step (note that integration is done using fixed-steps):
+Provide spacecraft parameters (max thrust and mass-flow rate), max transfer time, and time-step (note that integration is done using fixed steps):
 
 ```python
 # spacecraft parameters
