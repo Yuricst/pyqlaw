@@ -1,0 +1,651 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API &#8212; pyqlaw 0.2.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=6808a718"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="MEE-SMA Q-law: GTO to GEO" href="examples/ex_GTO2GEO.html" />
+    <link rel="prev" title="Theory behind Q-law" href="theory.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyqlaw 0.2.3 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="theory.html">Theory behind Q-law</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">API</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Basic Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_GTO2GEO.html">MEE-SMA Q-law: GTO to GEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_LEO_transfer.html">Keplerian Q-law: LEO transfer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_eta_functions.html">Providing dynamic efficiency threshold as function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_thruster_dutycycle.html">Thruster duty cycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_gto_manifold.html">GTO to manifold</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/api.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>API</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw"><code class="docutils literal notranslate"><span class="pre">QLaw</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.evaluate_osculating_qdot"><code class="docutils literal notranslate"><span class="pre">QLaw.evaluate_osculating_qdot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.get_cartesian_history"><code class="docutils literal notranslate"><span class="pre">QLaw.get_cartesian_history()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.interpolate_states"><code class="docutils literal notranslate"><span class="pre">QLaw.interpolate_states()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.pretty"><code class="docutils literal notranslate"><span class="pre">QLaw.pretty()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.pretty_results"><code class="docutils literal notranslate"><span class="pre">QLaw.pretty_results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.pretty_settings"><code class="docutils literal notranslate"><span class="pre">QLaw.pretty_settings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.save_to_dict"><code class="docutils literal notranslate"><span class="pre">QLaw.save_to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.set_problem"><code class="docutils literal notranslate"><span class="pre">QLaw.set_problem()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.solve"><code class="docutils literal notranslate"><span class="pre">QLaw.solve()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.SpicePerturbations"><code class="docutils literal notranslate"><span class="pre">SpicePerturbations()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.mee_with_a2kep"><code class="docutils literal notranslate"><span class="pre">mee_with_a2kep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.kep2mee_with_a"><code class="docutils literal notranslate"><span class="pre">kep2mee_with_a()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="api">
+<h1>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyqlaw.QLaw">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyqlaw.</span></span><span class="sig-name descname"><span class="pre">QLaw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rpmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_petro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m_petro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_petro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_petro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_petro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mee_with_a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">integrator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'rk4'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbosity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anomaly_grid_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol_oe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oe_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oe_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_angles_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_frequency</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_sundman</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">perturbations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relaxed_tol_factor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_at_relaxed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw" title="Link to this definition">#</a></dt>
+<dd><p>Object for Q-law based transfer problem.</p>
+<p>The overall procedure for using this class is:</p>
+<ol class="arabic simple">
+<li><p>Create object via <cite>prob = QLaw()</cite></p></li>
+<li><p>Set problem parameters via <cite>prob.set_problem()</cite></p></li>
+<li><p>solve problem via <cite>prob.solve()</cite></p></li>
+</ol>
+<p>Exitcodes:</p>
+<ul class="simple">
+<li><p><cite>0</cite> : initial value (problem not yet attempted)</p></li>
+<li><p><cite>1</cite> : solved within tolerance</p></li>
+<li><p><cite>2</cite> : solved within relaxed tolerance</p></li>
+<li><p><cite>-1</cite> : mass is below threshold</p></li>
+<li><p><cite>-2</cite> : target elements could not be reached within allocated time</p></li>
+<li><p><cite>-3</cite> : thrust angles from feedback control law is nan</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mu</strong> (<em>float</em>) – gravitational parameter, default is 1.0</p></li>
+<li><p><strong>rpmin</strong> (<em>float</em>) – minimum periapsis</p></li>
+<li><p><strong>k_petro</strong> (<em>float</em>) – scalar factor k on minimum periapsis</p></li>
+<li><p><strong>m_petro</strong> (<em>float</em>) – scalar factor m to prevent non-convergence, default is 3.0</p></li>
+<li><p><strong>n_petro</strong> (<em>float</em>) – scalar factor n to prevent non-convergence, default is 4.0</p></li>
+<li><p><strong>r_petro</strong> (<em>float</em>) – scalar factor r to prevent non-convergence, default is 2.0</p></li>
+<li><p><strong>b_petro</strong> (<em>float</em>) – scalar factor b for dot(omega)_xx, default is 0.01</p></li>
+<li><p><strong>wp</strong> (<em>float</em>) – penalty scalar on minimum periapsis, default is 1.0</p></li>
+<li><p><strong>elements_type</strong> (<em>str</em>) – type of elements to define Q-law</p></li>
+<li><p><strong>integrator</strong> (<em>str</em>) – “rk4” or “rkf45”</p></li>
+<li><p><strong>verbosity</strong> (<em>int</em>) – verbosity level for Q-law</p></li>
+<li><p><strong>anomaly_grid_size</strong> (<em>int</em>) – number of evaluation point along orbit for Q-law effectivity</p></li>
+<li><p><strong>disable_tqdm</strong> (<em>bool</em>) – whether to disable progress bar</p></li>
+<li><p><strong>tol_oe</strong> (<em>np.array</em><em> or </em><em>None</em>) – tolerance on 5 elements targeted</p></li>
+<li><p><strong>oe_min</strong> (<em>np.array</em>) – minimum values of elements for safe-guarding</p></li>
+<li><p><strong>oe_max</strong> (<em>np.array</em>) – minimum values of elements for safe-guarding</p></li>
+<li><p><strong>nan_angles_threshold</strong> (<em>int</em>) – number of times to ignore <cite>nan</cite> thrust angles</p></li>
+<li><p><strong>print_frequency</strong> (<em>int</em>) – if verbosity &gt;= 2, prints at this frequency</p></li>
+<li><p><strong>use_sundman</strong> (<em>bool</em>) – whether to use Sundman transformation for propagation</p></li>
+<li><p><strong>perturbations</strong> (<em>SpicePerturbations</em><em> or </em><em>None</em>) – object containing perturbation computation scheme</p></li>
+<li><p><strong>relaxed_tol_factor</strong> (<em>float</em>) – factor to relax tolerance</p></li>
+<li><p><strong>exit_at_relaxed</strong> (<em>int</em>) – number of times to clear relaxed condition before exiting</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.evaluate_osculating_qdot">
+<span class="sig-name descname"><span class="pre">evaluate_osculating_qdot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accel_thrust</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.evaluate_osculating_qdot" title="Link to this definition">#</a></dt>
+<dd><p>Evaluate Qdot over the entire orbit</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oe</strong> (<em>np.array</em>) – current osculating elements</p></li>
+<li><p><strong>accel_thrust</strong> (<em>float</em>) – acceleration magnitude, tmax/mass</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>min and max Qdot for defining efficiency</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(tuple)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.get_cartesian_history">
+<span class="sig-name descname"><span class="pre">get_cartesian_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">interpolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quadratic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">get_t_evals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.get_cartesian_history" title="Link to this definition">#</a></dt>
+<dd><p>Get Cartesian history of states</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.interpolate_states">
+<span class="sig-name descname"><span class="pre">interpolate_states</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'quadratic'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.interpolate_states" title="Link to this definition">#</a></dt>
+<dd><p>Create interpolation states</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.pretty">
+<span class="sig-name descname"><span class="pre">pretty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.pretty" title="Link to this definition">#</a></dt>
+<dd><p>Pretty print</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.pretty_results">
+<span class="sig-name descname"><span class="pre">pretty_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.pretty_results" title="Link to this definition">#</a></dt>
+<dd><p>Pretty print results of the problem</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.pretty_settings">
+<span class="sig-name descname"><span class="pre">pretty_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.pretty_settings" title="Link to this definition">#</a></dt>
+<dd><p>Pretty print settings about the problem instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.save_to_dict">
+<span class="sig-name descname"><span class="pre">save_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canonical_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_control_angles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.save_to_dict" title="Link to this definition">#</a></dt>
+<dd><p>Export result into a dictionary, saved as json if filepath is provided</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>filepath</strong> (<em>str</em>) – filepath to json filename to save the dictionary</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.set_problem">
+<span class="sig-name descname"><span class="pre">set_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oe0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oeT</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tf_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mass_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">woe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duty_cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(1e+16,</span> <span class="pre">0.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">battery_initial</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">battery_capacity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.2,</span> <span class="pre">1.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">battery_charge_discharge_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_full_recharge</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.set_problem" title="Link to this definition">#</a></dt>
+<dd><p>Set transfer problem</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>oe0</strong> (<em>np.array</em>) – initial state, in Keplerian elements (6 components)</p></li>
+<li><p><strong>oeT</strong> (<em>np.array</em>) – final target Keplerian elements (5 components)</p></li>
+<li><p><strong>mass0</strong> (<em>float</em>) – initial mass</p></li>
+<li><p><strong>tmax</strong> (<em>float</em>) – max thrust</p></li>
+<li><p><strong>mdot</strong> (<em>float</em>) – mass-flow rate</p></li>
+<li><p><strong>tf_max</strong> (<em>float</em>) – max time allocated to transfer</p></li>
+<li><p><strong>t_step</strong> (<em>float</em>) – initial time-step size to be used for integration</p></li>
+<li><p><strong>mass_min</strong> (<em>float</em>) – minimum mass</p></li>
+<li><p><strong>woe</strong> (<em>np.array</em>) – weight on each osculating element</p></li>
+<li><p><strong>duty_cycle</strong> (<em>tuple</em>) – ON and OFF times for duty cycle, default is (1e16, 0.0)</p></li>
+<li><p><strong>use_sundman</strong> (<em>bool</em>) – whether to use Sundman transformation for propagation</p></li>
+<li><p><strong>battery_capacity</strong> (<em>tuple</em>) – min and max battery capacity (min should be DOD)</p></li>
+<li><p><strong>battery_charge_discharge_rate</strong> (<em>tuple</em>) – charge and discharge rate (both positive values)</p></li>
+<li><p><strong>require_full_recharge</strong> (<em>bool</em>) – whether full recharge is required once DOD is reached</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyqlaw.QLaw.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eta_a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eta_r</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.QLaw.solve" title="Link to this definition">#</a></dt>
+<dd><p>Propagate and solve control problem</p>
+<p>Efficiency thresholds <cite>eta_a</cite> and <cite>eta_r</cite> may be given either as constant floats or as callables.
+If providing callables, the required signatures are:</p>
+<ul class="simple">
+<li><p><cite>eta_a(t, oe, mass, battery) -&gt; eta_a_value::float</cite></p></li>
+<li><p><cite>eta_r(t, oe, mass, battery) -&gt; eta_r_value::float</cite></p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eta_a</strong> (<em>float</em><em> or </em><em>callable</em>) – min absolute effectivity to thrust</p></li>
+<li><p><strong>eta_r</strong> (<em>float</em><em> or </em><em>callable</em>) – relative effectivity, <cite>0.0 &lt;= eta_r &lt;= 1.0</cite></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyqlaw.SpicePerturbations">
+<span class="sig-prename descclassname"><span class="pre">pyqlaw.</span></span><span class="sig-name descname"><span class="pre">SpicePerturbations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">et_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LU</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">TU</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'399'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_qlaw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'J2000'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_PA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ITRF93'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">third_bodies_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['301',</span> <span class="pre">'10']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">third_bodies_gms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">J2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.00108263</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Re_km</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6378.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">P_SRP_SI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.56e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Cr_SRP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Am_SI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_J2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_SRP</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.SpicePerturbations" title="Link to this definition">#</a></dt>
+<dd><p>Class contains parameters for computing perturbations in RTN frame.
+SPICE is used to query positions of third bodies and transformation matrices.
+Default inputs are for an Earth-centered orbit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>et_ref</strong> (<em>float</em>) – reference time in ET, i.e. ephemeris time corresponding to <cite>t = 0</cite></p></li>
+<li><p><strong>LU</strong> (<em>float</em>) – length unit in km</p></li>
+<li><p><strong>TU</strong> (<em>float</em>) – time unit in seconds</p></li>
+<li><p><strong>obs_id</strong> (<em>str</em>) – SPICE ID of observer body, i.e. central body</p></li>
+<li><p><strong>frame_qlaw</strong> (<em>str</em>) – SPICE frame in which Q-law is defined</p></li>
+<li><p><strong>frame_PA</strong> (<em>str</em>) – SPICE frame corresponding to principal axes frame of central body</p></li>
+<li><p><strong>third_bodies_names</strong> (<em>list</em>) – list of SPICE IDs of third bodies</p></li>
+<li><p><strong>third_bodies_gms</strong> (<em>list</em>) – list of GM’s of third bodies</p></li>
+<li><p><strong>J2</strong> (<em>float</em>) – J2 coefficient of central body</p></li>
+<li><p><strong>Re_km</strong> (<em>float</em>) – equatorial radius of central body in km</p></li>
+<li><p><strong>use_J2</strong> (<em>bool</em>) – flag to use J2 perturbation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyqlaw.mee_with_a2kep">
+<span class="sig-prename descclassname"><span class="pre">pyqlaw.</span></span><span class="sig-name descname"><span class="pre">mee_with_a2kep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oe_mee_with_a</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.mee_with_a2kep" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyqlaw.kep2mee_with_a">
+<span class="sig-prename descclassname"><span class="pre">pyqlaw.</span></span><span class="sig-name descname"><span class="pre">kep2mee_with_a</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">oe_kep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyqlaw.kep2mee_with_a" title="Link to this definition">#</a></dt>
+<dd><p>Get targeting element set used by Q-law when using MEE</p>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="theory.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Theory behind Q-law</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="examples/ex_GTO2GEO.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">MEE-SMA Q-law: GTO to GEO</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw"><code class="docutils literal notranslate"><span class="pre">QLaw</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.evaluate_osculating_qdot"><code class="docutils literal notranslate"><span class="pre">QLaw.evaluate_osculating_qdot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.get_cartesian_history"><code class="docutils literal notranslate"><span class="pre">QLaw.get_cartesian_history()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.interpolate_states"><code class="docutils literal notranslate"><span class="pre">QLaw.interpolate_states()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.pretty"><code class="docutils literal notranslate"><span class="pre">QLaw.pretty()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.pretty_results"><code class="docutils literal notranslate"><span class="pre">QLaw.pretty_results()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.pretty_settings"><code class="docutils literal notranslate"><span class="pre">QLaw.pretty_settings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.save_to_dict"><code class="docutils literal notranslate"><span class="pre">QLaw.save_to_dict()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.set_problem"><code class="docutils literal notranslate"><span class="pre">QLaw.set_problem()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.QLaw.solve"><code class="docutils literal notranslate"><span class="pre">QLaw.solve()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.SpicePerturbations"><code class="docutils literal notranslate"><span class="pre">SpicePerturbations()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.mee_with_a2kep"><code class="docutils literal notranslate"><span class="pre">mee_with_a2kep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyqlaw.kep2mee_with_a"><code class="docutils literal notranslate"><span class="pre">kep2mee_with_a()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yuri Shimane
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025 Yuri Shimane.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

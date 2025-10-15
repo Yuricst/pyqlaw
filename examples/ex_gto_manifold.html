@@ -1,0 +1,885 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GTO to manifold &#8212; pyqlaw 0.2.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=6808a718"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/ex_gto_manifold';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Thruster duty cycle" href="ex_thruster_dutycycle.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyqlaw 0.2.3 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory behind Q-law</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Basic Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ex_GTO2GEO.html">MEE-SMA Q-law: GTO to GEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ex_LEO_transfer.html">Keplerian Q-law: LEO transfer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Examples:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ex_eta_functions.html">Providing dynamic efficiency threshold as function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ex_thruster_dutycycle.html">Thruster duty cycle</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">GTO to manifold</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/ex_gto_manifold.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>GTO to manifold</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="GTO-to-manifold">
+<h1>GTO to manifold<a class="headerlink" href="#GTO-to-manifold" title="Link to this heading">#</a></h1>
+<p>We present an example going from GTO to a manifold insertion point. The actual trajectory is designed backward in time.</p>
+<p>This example requires the <code class="docutils literal notranslate"><span class="pre">`polaris</span></code> repository &lt;<a class="github reference external" href="https://github.com/Yuricst/polaris">Yuricst/polaris</a>&gt;`__ to construct manifolds.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">rand</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../../&quot;</span><span class="p">)</span>    <span class="c1"># path to pyqlaw</span>
+<span class="kn">import</span> <span class="nn">pyqlaw</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../../../polaris&quot;</span><span class="p">)</span>   <span class="c1"># give path to polaris module</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">polaris.SolarSystemConstants</span> <span class="k">as</span> <span class="nn">ssc</span>
+<span class="kn">import</span> <span class="nn">polaris.Propagator</span> <span class="k">as</span> <span class="nn">prop</span>
+<span class="kn">import</span> <span class="nn">polaris.R3BP</span> <span class="k">as</span> <span class="nn">r3bp</span>
+<span class="kn">import</span> <span class="nn">polaris.Keplerian</span> <span class="k">as</span> <span class="nn">kepl</span>
+<span class="kn">import</span> <span class="nn">polaris.Coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="kn">import</span> <span class="nn">polaris.LinearOrbit</span> <span class="k">as</span> <span class="nn">lino</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">param_earth_moon</span> <span class="o">=</span> <span class="n">r3bp</span><span class="o">.</span><span class="n">CR3BP</span><span class="p">(</span><span class="s1">&#39;399&#39;</span><span class="p">,</span><span class="s1">&#39;301&#39;</span><span class="p">)</span>   <span class="c1"># NAIF ID&#39;s &#39;399&#39;: Earth, &#39;301&#39;: Moon</span>
+<span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.012150584269940354
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">haloinit</span> <span class="o">=</span> <span class="n">r3bp</span><span class="o">.</span><span class="n">get_halo_approx</span><span class="p">(</span><span class="n">mu</span><span class="o">=</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span> <span class="n">lp</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">lstar</span><span class="o">=</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">lstar</span><span class="p">,</span>
+                                <span class="n">az_km</span><span class="o">=</span><span class="mi">12000</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">phase</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">p_conv</span><span class="p">,</span> <span class="n">state_conv</span><span class="p">,</span> <span class="n">flag_conv</span> <span class="o">=</span> <span class="n">r3bp</span><span class="o">.</span><span class="n">ssdc_periodic_xzplane</span><span class="p">(</span><span class="n">param_earth_moon</span><span class="p">,</span> <span class="n">haloinit</span><span class="p">[</span><span class="s2">&quot;state_guess&quot;</span><span class="p">],</span>
+                                                           <span class="n">haloinit</span><span class="p">[</span><span class="s2">&quot;period_guess&quot;</span><span class="p">],</span> <span class="n">fix</span><span class="o">=</span><span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prop0</span> <span class="o">=</span> <span class="n">prop</span><span class="o">.</span><span class="n">propagate_cr3bp</span><span class="p">(</span><span class="n">param_earth_moon</span><span class="p">,</span> <span class="n">state_conv</span><span class="p">,</span> <span class="n">p_conv</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[144]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mnfpls</span><span class="p">,</span> <span class="n">mnfmin</span> <span class="o">=</span> <span class="n">r3bp</span><span class="o">.</span><span class="n">get_manifold</span><span class="p">(</span><span class="n">param_earth_moon</span><span class="p">,</span> <span class="n">state_conv</span><span class="p">,</span> <span class="n">p_conv</span><span class="p">,</span> <span class="n">tf_manif</span><span class="o">=</span><span class="mf">6.1</span><span class="p">,</span>
+                                   <span class="n">stable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">force_solve_ivp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>We now choose an insertion point to switch between coasting on the manifold and low-thrust spiral.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[147]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">index_departure</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">x_insertion_EMrot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">xs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">ys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">zs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">vxs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">vys</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">vzs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[148]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="c1"># for branch in mnfpls.branches:</span>
+<span class="c1">#     ax.plot(branch.propout.xs, branch.propout.ys, linewidth=0.8, c=&#39;deeppink&#39;)</span>
+<span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">xs</span><span class="p">,</span> <span class="n">branch</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">ys</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;dodgerblue&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x_insertion_EMrot</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_insertion_EMrot</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;x, canonical&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;y, canonical&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Stable manifold of the L2 halo&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_gto_manifold_11_0.png" src="../_images/examples_ex_gto_manifold_11_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[149]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">T_EMrot2Inr</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span> <span class="n">c</span><span class="p">,</span>   <span class="o">-</span><span class="n">s</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="n">s</span><span class="p">,</span>    <span class="n">c</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="n">n</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">s</span><span class="p">,</span>  <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">])</span>
+    <span class="k">return</span> <span class="n">T</span>
+
+<span class="k">def</span> <span class="nf">T_Inr2EMrot</span><span class="p">(</span><span class="n">theta</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="p">[</span> <span class="n">c</span><span class="p">,</span>   <span class="o">-</span><span class="n">s</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="n">s</span><span class="p">,</span>    <span class="n">c</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="mi">1</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="n">n</span><span class="o">*</span><span class="n">c</span><span class="p">,</span> <span class="o">-</span><span class="n">n</span><span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>  <span class="n">s</span><span class="p">,</span>  <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mi">0</span><span class="p">,</span>    <span class="mi">0</span><span class="p">,</span>   <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span>  <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">])</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[150]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">T_EMrot2Inr_insertion</span> <span class="o">=</span> <span class="n">T_EMrot2Inr</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="n">shift</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">x_insertion_Inr</span> <span class="o">=</span> <span class="n">T_EMrot2Inr_insertion</span> <span class="o">@</span> <span class="p">(</span><span class="n">x_insertion_EMrot</span> <span class="o">+</span> <span class="n">shift</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[151]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_insertion_Inr</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[151]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([-0.70745582,  0.25978978,  0.03199177, -0.27696966, -0.93623785,
+        0.03190293])
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[152]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mu_Earth</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span>
+<span class="n">elts_dict</span> <span class="o">=</span> <span class="n">kepl</span><span class="o">.</span><span class="n">sv2elts</span><span class="p">(</span><span class="n">x_insertion_Inr</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu_Earth</span><span class="p">)</span>
+<span class="n">alpha_insertion_Inr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="n">elts_dict</span><span class="p">[</span><span class="s1">&#39;sma&#39;</span><span class="p">],</span>
+    <span class="n">elts_dict</span><span class="p">[</span><span class="s1">&#39;ecc&#39;</span><span class="p">],</span>
+    <span class="n">elts_dict</span><span class="p">[</span><span class="s1">&#39;inc&#39;</span><span class="p">],</span>
+    <span class="n">elts_dict</span><span class="p">[</span><span class="s1">&#39;raan&#39;</span><span class="p">],</span>
+    <span class="n">elts_dict</span><span class="p">[</span><span class="s1">&#39;aop&#39;</span><span class="p">],</span>
+    <span class="n">elts_dict</span><span class="p">[</span><span class="s1">&#39;ta&#39;</span><span class="p">],</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[153]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha_insertion_Inr</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[153]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([0.59334358, 0.2779614 , 0.05526581, 1.91502655, 3.85197959,
+       3.30659376])
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[177]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># construct problem</span>
+<span class="c1">#elements_type = &quot;keplerian&quot;</span>
+<span class="n">elements_type</span> <span class="o">=</span> <span class="s2">&quot;mee_with_a&quot;</span>
+
+<span class="n">prob</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">QLaw</span><span class="p">(</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span>
+    <span class="n">elements_type</span><span class="o">=</span><span class="n">elements_type</span><span class="p">,</span>
+    <span class="n">integrator</span><span class="o">=</span><span class="s2">&quot;rk4&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># initial and final elements: [a,e,i,RAAN,omega,ta]</span>
+<span class="n">oe0</span> <span class="o">=</span> <span class="n">alpha_insertion_Inr</span>
+<span class="n">sma_gto</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6578</span><span class="o">+</span><span class="mi">42164</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="o">/</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">lstar</span>
+<span class="n">ecc_gto</span> <span class="o">=</span> <span class="p">(</span><span class="mi">42164</span><span class="o">-</span><span class="mi">6578</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">42164</span><span class="o">+</span><span class="mi">6578</span><span class="p">)</span>
+<span class="c1"># sma_gto = 42164/param_earth_moon.lstar</span>
+<span class="c1"># ecc_gto = 0.01</span>
+<span class="n">oeT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+    <span class="n">sma_gto</span><span class="p">,</span>
+    <span class="n">ecc_gto</span><span class="p">,</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mf">23.0</span><span class="p">),</span>
+    <span class="mf">0.2</span><span class="p">,</span>
+    <span class="mf">3.01</span><span class="p">,</span>
+    <span class="mf">1.26</span>
+<span class="p">])</span>
+
+<span class="k">if</span> <span class="n">elements_type</span> <span class="o">==</span> <span class="s2">&quot;mee_with_a&quot;</span><span class="p">:</span>
+    <span class="n">oe0</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">kep2mee_with_a</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">oe0</span><span class="p">))</span>
+    <span class="n">oeT</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">kep2mee_with_a</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">oeT</span><span class="p">))</span>
+    <span class="n">woe</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">woe</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[179]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">woe</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[179]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[3.0, 1.0, 1.0, 1.0, 1.0]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[180]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># spacecraft parameters</span>
+<span class="n">mass0</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">tmax</span> <span class="o">=</span> <span class="mf">0.15</span>
+<span class="n">mdot</span> <span class="o">=</span> <span class="mf">1e-4</span>
+<span class="n">tf_max</span> <span class="o">=</span> <span class="mf">3000.0</span>
+<span class="n">t_step</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.05</span>
+<span class="c1"># set problem</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">set_problem</span><span class="p">(</span><span class="n">oe0</span><span class="p">,</span> <span class="n">oeT</span><span class="p">,</span> <span class="n">mass0</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">mdot</span><span class="p">,</span> <span class="n">tf_max</span><span class="p">,</span> <span class="n">t_step</span><span class="p">,</span> <span class="n">woe</span><span class="o">=</span><span class="n">woe</span><span class="p">)</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">pretty</span><span class="p">()</span>
+
+<span class="c1"># solve</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">pretty_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Transfer:
+  a  : 5.9334e-01 -&gt; 6.3400e-02 (weight: 3.00)
+  f  : 2.4175e-01 -&gt; -7.2838e-01 (weight: 1.00)
+  g  : -1.3719e-01 -&gt; -4.9905e-02 (weight: 1.00)
+  h  : -9.3277e-03 -&gt; 1.9940e-01 (weight: 1.00)
+  k  : 2.6018e-02 -&gt; 4.0420e-02 (weight: 1.00)
+Target elements successfully reached!
+Exit code : 1
+Converge  : True
+Final state:
+  a  : 6.3626e-02 (error: 2.2542e-04)
+  f  : -7.2569e-01 (error: 2.6931e-03)
+  g  : -5.0814e-02 (error: 9.0902e-04)
+  h  : 1.9897e-01 (error: 4.2297e-04)
+  k  : 4.0818e-02 (error: 3.9845e-04)
+Transfer time : -23.000000000000192
+Final mass    : 1.002300000000015
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[181]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig1</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_elements_history</span><span class="p">(</span><span class="n">TU</span><span class="o">=</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">tstar</span><span class="o">/</span><span class="mi">86400</span><span class="p">,</span>
+                                       <span class="n">time_unit_name</span><span class="o">=</span><span class="s2">&quot;day&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_gto_manifold_20_0.png" src="../_images/examples_ex_gto_manifold_20_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[247]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_trajectory_2d</span><span class="p">(</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">30000</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_gto_manifold_21_0.png" src="../_images/examples_ex_gto_manifold_21_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[204]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cart</span><span class="p">,</span> <span class="n">t_evals</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">get_cartesian_history</span><span class="p">(</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;linear&#39;</span><span class="p">,</span>
+                                  <span class="n">steps</span><span class="o">=</span><span class="mi">40000</span><span class="p">,</span> <span class="n">get_t_evals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cart</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[204]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(6, 40000)
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[205]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transfer_EMrot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span><span class="n">cart</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">shift_to_EMrot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cart</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+    <span class="n">transfer_EMrot</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">T_Inr2EMrot</span><span class="p">(</span><span class="n">t_evals</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span> <span class="o">@</span> <span class="n">cart</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift_to_EMrot</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[217]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">circle_coordinates</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">coord</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="n">steps</span><span class="p">))</span>
+    <span class="n">thetas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">steps</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+        <span class="n">coord</span><span class="p">[:,</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">thetas</span><span class="p">[</span><span class="n">idx</span><span class="p">]),</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">thetas</span><span class="p">[</span><span class="n">idx</span><span class="p">])])</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coord</span>
+
+<span class="n">earth_coord</span> <span class="o">=</span> <span class="n">circle_coordinates</span><span class="p">([</span><span class="o">-</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">mu</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">radius</span><span class="o">=</span><span class="mi">6378</span><span class="o">/</span><span class="n">param_earth_moon</span><span class="o">.</span><span class="n">lstar</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[229]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">LU</span> <span class="o">=</span> <span class="n">param_earth_moon</span><span class="o">.</span><span class="n">lstar</span><span class="o">/</span><span class="mf">1e5</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">18</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">xs</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">branch</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">ys</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;deeppink&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">xs</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span>
+        <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">ys</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">transfer_EMrot</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">transfer_EMrot</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">earth_coord</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">earth_coord</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;dodgerblue&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s1">&#39;$x$, $10^5$ km&#39;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s1">&#39;$y$, $10^5$ km&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;example_gto_L1halo.png&quot;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_gto_manifold_25_0.png" src="../_images/examples_ex_gto_manifold_25_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[246]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">LU</span> <span class="o">=</span> <span class="n">param_earth_moon</span><span class="o">.</span><span class="n">lstar</span><span class="o">/</span><span class="mf">1e5</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;font.size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="c1">#ax.grid(True, alpha=0.01)</span>
+<span class="k">for</span> <span class="n">branch</span> <span class="ow">in</span> <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">:</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">xs</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">branch</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">ys</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">xs</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span>
+        <span class="n">mnfmin</span><span class="o">.</span><span class="n">branches</span><span class="p">[</span><span class="n">index_departure</span><span class="p">]</span><span class="o">.</span><span class="n">propout</span><span class="o">.</span><span class="n">ys</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">transfer_EMrot</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">transfer_EMrot</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span><span class="o">*</span><span class="n">LU</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+    <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span>          <span class="c1"># changes apply to the y-axis</span>
+    <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>      <span class="c1"># both major and minor ticks are affected</span>
+    <span class="n">left</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>        <span class="c1"># ticks along the bottom edge are off</span>
+    <span class="n">top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>         <span class="c1"># ticks along the top edge are off</span>
+    <span class="n">labelleft</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># labels along the bottom edge are off</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span>
+    <span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>          <span class="c1"># changes apply to the x-axis</span>
+    <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span>      <span class="c1"># both major and minor ticks are affected</span>
+    <span class="n">bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>      <span class="c1"># ticks along the bottom edge are off</span>
+    <span class="n">top</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>         <span class="c1"># ticks along the top edge are off</span>
+    <span class="n">labelbottom</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># labels along the bottom edge are off</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;example_gto_L1halo_tshirt.pdf&quot;</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_gto_manifold_26_0.png" src="../_images/examples_ex_gto_manifold_26_0.png" />
+</div>
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="ex_thruster_dutycycle.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Thruster duty cycle</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yuri Shimane
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025 Yuri Shimane.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

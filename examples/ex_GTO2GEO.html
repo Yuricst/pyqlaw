@@ -1,0 +1,854 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>MEE-SMA Q-law: GTO to GEO &#8212; pyqlaw 0.2.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=6808a718"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/ex_GTO2GEO';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Keplerian Q-law: LEO transfer" href="ex_LEO_transfer.html" />
+    <link rel="prev" title="API" href="../api.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyqlaw 0.2.3 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../theory.html">Theory behind Q-law</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Basic Examples:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">MEE-SMA Q-law: GTO to GEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ex_LEO_transfer.html">Keplerian Q-law: LEO transfer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="ex_eta_functions.html">Providing dynamic efficiency threshold as function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ex_thruster_dutycycle.html">Thruster duty cycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ex_gto_manifold.html">GTO to manifold</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/examples/ex_GTO2GEO.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>MEE-SMA Q-law: GTO to GEO</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Time-optimal-transfer">Time-optimal transfer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Introducing-throttles">Introducing throttles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Introducing-Non-Keplerian-perturbations">Introducing Non-Keplerian perturbations</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="MEE-SMA-Q-law:-GTO-to-GEO">
+<h1>MEE-SMA Q-law: GTO to GEO<a class="headerlink" href="#MEE-SMA-Q-law:-GTO-to-GEO" title="Link to this heading">#</a></h1>
+<p>One of the most common low-thrust many revolution transfer is to go from GTO to GEO. In this example, we make use of <code class="docutils literal notranslate"><span class="pre">pyqlaw</span></code> to construct this transfer.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.random</span> <span class="kn">import</span> <span class="n">rand</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;../../../&quot;</span><span class="p">)</span>    <span class="c1"># path to pyqlaw</span>
+<span class="kn">import</span> <span class="nn">pyqlaw</span>
+</pre></div>
+</div>
+</div>
+<p>We begin by defining our canonical scales and initial conditions.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># initial and final elements: [a,e,i,RAAN,omega,ta]</span>
+<span class="n">LU</span> <span class="o">=</span> <span class="mf">42164.0</span>
+<span class="n">GM_EARTH</span> <span class="o">=</span> <span class="mf">398600.44</span>
+<span class="n">VU</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">GM_EARTH</span><span class="o">/</span><span class="n">LU</span><span class="p">)</span>
+<span class="n">TU</span> <span class="o">=</span> <span class="n">LU</span><span class="o">/</span><span class="n">VU</span>
+
+<span class="n">rp_gto</span> <span class="o">=</span> <span class="mi">200</span> <span class="o">+</span> <span class="mi">6378</span>
+<span class="n">ra_gto</span> <span class="o">=</span> <span class="mi">35786</span> <span class="o">+</span> <span class="mi">6378</span>
+<span class="n">sma_gto</span> <span class="o">=</span> <span class="p">(</span><span class="n">rp_gto</span> <span class="o">+</span> <span class="n">ra_gto</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">LU</span><span class="p">)</span>
+<span class="n">ecc_gto</span> <span class="o">=</span> <span class="p">(</span><span class="n">ra_gto</span> <span class="o">-</span> <span class="n">rp_gto</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">ra_gto</span> <span class="o">+</span> <span class="n">rp_gto</span><span class="p">)</span>
+<span class="n">KEP0</span> <span class="o">=</span> <span class="p">[</span><span class="n">sma_gto</span><span class="p">,</span><span class="n">ecc_gto</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">23</span><span class="p">),</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">KEPF</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># spacecraft parameters</span>
+<span class="n">MU</span> <span class="o">=</span> <span class="mi">1000</span>        <span class="c1"># spacecraft wet mass, kg</span>
+<span class="n">tmax_si</span> <span class="o">=</span> <span class="mf">0.45</span>   <span class="c1"># spacecraft thrust, Newton</span>
+<span class="n">isp_si</span>  <span class="o">=</span> <span class="mi">1500</span>   <span class="c1"># spacecraft specific impulse, seconds</span>
+<span class="n">mdot_si</span> <span class="o">=</span> <span class="n">tmax_si</span><span class="o">/</span><span class="p">(</span><span class="n">isp_si</span><span class="o">*</span><span class="mf">9.81</span><span class="p">)</span>  <span class="c1"># kg/s</span>
+
+<span class="c1"># non-dimensional quantities</span>
+<span class="n">mass0</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">tmax</span> <span class="o">=</span> <span class="n">tmax_si</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">MU</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">TU</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="p">(</span><span class="mf">1e3</span><span class="o">*</span><span class="n">LU</span><span class="p">))</span>
+<span class="n">mdot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">mdot_si</span><span class="p">)</span> <span class="o">*</span><span class="p">(</span><span class="n">TU</span><span class="o">/</span><span class="n">MU</span><span class="p">)</span>
+<span class="n">tmax</span><span class="p">,</span> <span class="n">mdot</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(0.0020070507277914697, 0.0004193687522487825)
+</pre></div></div>
+</div>
+<p>Because GEO is circular and planar, Keplerian elements are not good representations for the Lyapunov controller due to the associated singularities. We will instead use the state representation based on modified equinoctial elements, but with the semilatus rectum replaced by semi-major axis:</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{x} = [a,f,g,h,k,L]^T\]</div>
+<p>This set of orbital elements is called <code class="docutils literal notranslate"><span class="pre">mee_with_a</span></code> within <code class="docutils literal notranslate"><span class="pre">pyqlaw</span></code>. We will convert our initial Keplerian elements to this representation.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">oe0</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">kep2mee_with_a</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">KEP0</span><span class="p">))</span>
+<span class="n">oeT</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">kep2mee_with_a</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">KEPF</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>We can now construct the Q-law problem object, making sure that we choose the appropriate <code class="docutils literal notranslate"><span class="pre">elements_type</span></code>. We also have a choice of <code class="docutils literal notranslate"><span class="pre">integrator</span></code>, where we can either choose:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;rk4&quot;</span></code>: fixed-step 4th order Runge-Kutta, or</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;rkf45&quot;</span></code>: 4th order Runge-Kutta with 5th order step-size correction</p></li>
+</ul>
+<p>In addition, by setting <code class="docutils literal notranslate"><span class="pre">use_sundman</span> <span class="pre">=</span> <span class="pre">True</span></code>, we are taking steps in terms of fixed angle (i.e. fixed anomaly) rather than time. This is particularly useful to decrease computational time (by reducing number of integration steps) without compromising the accuracy too much for highly elliptical orbits, where small time-steps are required near periapsis, while large time-steps can be used near apoapsis.</p>
+<p>For now, we will assume Keplerian dynamics, so we do not pass any <code class="docutils literal notranslate"><span class="pre">perturbations</span></code> (we set it to <code class="docutils literal notranslate"><span class="pre">None</span></code> - which is the default anyway).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prob</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">QLaw</span><span class="p">(</span>
+    <span class="n">integrator</span><span class="o">=</span><span class="s2">&quot;rk4&quot;</span><span class="p">,</span>
+    <span class="n">elements_type</span><span class="o">=</span><span class="s2">&quot;mee_with_a&quot;</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">print_frequency</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">use_sundman</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">perturbations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We now “set” the problem, i.e. we assign it its initial and final conditions, initial mass, spacecraft engine parameters, etc. One important parameter to keep in mind is <code class="docutils literal notranslate"><span class="pre">woe</span></code> - this is the weights associated to each state (i.e. orbital elements) component within the Lyapunov function. A larger weight means that the controller will put higher emphasis on correcting this particular component.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># setup problem</span>
+<span class="n">tf_max</span> <span class="o">=</span> <span class="mf">365.25</span> <span class="o">*</span> <span class="mi">86400</span> <span class="o">/</span> <span class="n">TU</span>       <span class="c1"># max time, in canonical scales</span>
+<span class="n">t_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>             <span class="c1"># integration step, in angles</span>
+<span class="n">woe</span> <span class="o">=</span> <span class="p">[</span><span class="mf">3.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">]</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">set_problem</span><span class="p">(</span><span class="n">oe0</span><span class="p">,</span> <span class="n">oeT</span><span class="p">,</span> <span class="n">mass0</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">mdot</span><span class="p">,</span> <span class="n">tf_max</span><span class="p">,</span> <span class="n">t_step</span><span class="p">,</span>
+    <span class="n">woe</span> <span class="o">=</span> <span class="n">woe</span><span class="p">)</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">pretty</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Transfer:
+  a  : 5.7800e-01 -&gt; 1.0000e+00 (weight: 3.00)
+  f  : 7.3009e-01 -&gt; 0.0000e+00 (weight: 1.00)
+  g  : 0.0000e+00 -&gt; 0.0000e+00 (weight: 1.00)
+  h  : 2.0345e-01 -&gt; 2.6186e-02 (weight: 1.00)
+  k  : 0.0000e+00 -&gt; 0.0000e+00 (weight: 1.00)
+</pre></div></div>
+</div>
+<section id="Time-optimal-transfer">
+<h2>Time-optimal transfer<a class="headerlink" href="#Time-optimal-transfer" title="Link to this heading">#</a></h2>
+<p>We can now solve for the transfer. We will begin by constructing a solution that will always be thrusting. In optimal control problem (OCP) jargon, this is a bang-bang (as opposed to bang-off-bang) solution, and is the control history found for time-optimal problems. Of course, we must keep in mind that we are not solving an OCP here, so the solution we will obtain is sub-optimal.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># solve</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">pretty_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ iter   |  time      |  del1       |  del2       |  del3       |  del4       |  del5       |  el6        |
+      0 |  1.039e-02 | -4.2198e-01 |  7.3010e-01 |  0.0000e+00 |  1.7726e-01 |  0.0000e+00 |  2.2018e-01 |
+   2000 |  8.556e+01 | -3.2997e-01 |  6.5143e-01 |  2.9548e-03 |  1.0648e-01 |  2.6716e-04 |  1.7385e+02 |
+   4000 |  1.988e+02 | -1.5165e-01 |  5.1410e-01 |  7.9024e-03 |  2.8773e-02 |  7.6590e-04 |  3.4895e+02 |
+   6000 |  3.578e+02 | -4.3293e-03 |  5.4661e-02 |  9.5281e-03 |  9.5632e-04 |  1.7875e-05 |  5.2368e+02 |
+Target elements successfully reached!
+Exit code : 2
+Converge  : True
+Final state:
+  a  : 1.0016e+00 (error: 1.6300e-03)
+  f  : 7.5003e-04 (error: 7.5003e-04)
+  g  : 8.9484e-03 (error: 8.9484e-03)
+  h  : 2.6237e-02 (error: 5.1170e-05)
+  k  : 2.2512e-05 (error: 2.2512e-05)
+Transfer time : 374.1679349112323
+Final mass    : 0.8430856600047729
+</pre></div></div>
+</div>
+<p>We can now plot and visualize the results:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plots</span>
+<span class="n">fig1</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_elements_history</span><span class="p">(</span><span class="n">to_keplerian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">TU</span><span class="o">=</span><span class="n">TU</span><span class="o">/</span><span class="mi">86400</span><span class="p">,</span> <span class="n">time_unit_name</span><span class="o">=</span><span class="s2">&quot;day&quot;</span><span class="p">)</span>
+<span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_trajectory_3d</span><span class="p">(</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="o">=</span><span class="mi">6378</span><span class="o">/</span><span class="n">LU</span><span class="p">)</span>
+<span class="n">fig3</span><span class="p">,</span> <span class="n">ax3</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_controls</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_13_0.png" src="../_images/examples_ex_GTO2GEO_13_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_13_1.png" src="../_images/examples_ex_GTO2GEO_13_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_13_2.png" src="../_images/examples_ex_GTO2GEO_13_2.png" />
+</div>
+</div>
+</section>
+<section id="Introducing-throttles">
+<h2>Introducing throttles<a class="headerlink" href="#Introducing-throttles" title="Link to this heading">#</a></h2>
+<p>We can see in the third plot from the previous cell that the throttle is always at 100% - as expected. We can now introduce efficiency thresholds when we call the <code class="docutils literal notranslate"><span class="pre">solve()</span></code> method, (potentially) resulting in mass savings. It’s important to remember that introducing efficiency thresholds does not necessarily mean mass savings in all cases - because we thrust less often, it will always take longer to reach the final targeted elements - and the fact that it takes longer also means we will be
+thrusting for longer duration in total, thus resulting in more mass expenditure.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># solve</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">eta_r</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">pretty_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ iter   |  time      |  del1       |  del2       |  del3       |  del4       |  del5       |  el6        |
+      0 |  1.039e-02 | -4.2200e-01 |  7.3009e-01 |  0.0000e+00 |  1.7727e-01 |  0.0000e+00 |  2.2018e-01 |
+   2000 |  8.294e+01 | -3.5933e-01 |  6.4549e-01 |  2.1381e-03 |  1.1156e-01 |  3.2793e-04 |  1.7386e+02 |
+   4000 |  1.823e+02 | -2.5229e-01 |  5.2796e-01 |  5.1523e-03 |  4.8240e-02 |  8.6583e-04 |  3.4895e+02 |
+   6000 |  3.221e+02 | -1.7233e-02 |  2.7381e-01 |  5.3927e-03 |  7.4958e-03 |  5.8290e-04 |  5.2386e+02 |
+Target elements successfully reached!
+Exit code : 2
+Converge  : True
+Final state:
+  a  : 9.9869e-01 (error: 1.3097e-03)
+  f  : 4.9806e-03 (error: 4.9806e-03)
+  g  : 9.5195e-03 (error: 9.5195e-03)
+  h  : 2.6321e-02 (error: 1.3546e-04)
+  k  : 2.1832e-04 (error: 2.1832e-04)
+Transfer time : 423.3620208477802
+Final mass    : 0.8587594862776317
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plots</span>
+<span class="n">fig1</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_elements_history</span><span class="p">(</span><span class="n">to_keplerian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">TU</span><span class="o">=</span><span class="n">TU</span><span class="o">/</span><span class="mi">86400</span><span class="p">,</span> <span class="n">time_unit_name</span><span class="o">=</span><span class="s2">&quot;day&quot;</span><span class="p">)</span>
+<span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_trajectory_3d</span><span class="p">(</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="o">=</span><span class="mi">6378</span><span class="o">/</span><span class="n">LU</span><span class="p">)</span>
+<span class="n">fig3</span><span class="p">,</span> <span class="n">ax3</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_controls</span><span class="p">()</span>
+<span class="n">fig4</span><span class="p">,</span> <span class="n">ax4</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_efficiency</span><span class="p">(</span><span class="n">TU</span><span class="o">=</span><span class="n">TU</span><span class="o">/</span><span class="mi">86400</span><span class="p">,</span> <span class="n">time_unit_name</span><span class="o">=</span><span class="s2">&quot;day&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_16_0.png" src="../_images/examples_ex_GTO2GEO_16_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_16_1.png" src="../_images/examples_ex_GTO2GEO_16_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_16_2.png" src="../_images/examples_ex_GTO2GEO_16_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_16_3.png" src="../_images/examples_ex_GTO2GEO_16_3.png" />
+</div>
+</div>
+</section>
+<section id="Introducing-Non-Keplerian-perturbations">
+<h2>Introducing Non-Keplerian perturbations<a class="headerlink" href="#Introducing-Non-Keplerian-perturbations" title="Link to this heading">#</a></h2>
+<p>We will now consider non-Keplerian perturbations into our problem. This requires us to go back to the initialization of the <code class="docutils literal notranslate"><span class="pre">pyqlaw.QLaw</span></code> object.</p>
+<p>To compute perturbations, we require some SPICE kernels (to compute the position of the planets/Sun, as well as to compute the orientation of the principal axes frame with respect to the inertial frame.</p>
+<p>All kernels furnished (i.e. loaded) in the next cell can be downloaded on NAIF’s website: <a class="reference external" href="https://naif.jpl.nasa.gov/pub/naif/generic_kernels/">https://naif.jpl.nasa.gov/pub/naif/generic_kernels/</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">spiceypy</span> <span class="k">as</span> <span class="nn">spice</span>
+<span class="n">spice</span><span class="o">.</span><span class="n">furnsh</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SPICE&quot;</span><span class="p">),</span> <span class="s2">&quot;lsk&quot;</span><span class="p">,</span> <span class="s2">&quot;naif0012.tls&quot;</span><span class="p">))</span>
+<span class="n">spice</span><span class="o">.</span><span class="n">furnsh</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SPICE&quot;</span><span class="p">),</span> <span class="s2">&quot;spk&quot;</span><span class="p">,</span> <span class="s2">&quot;de440.bsp&quot;</span><span class="p">))</span>
+<span class="n">spice</span><span class="o">.</span><span class="n">furnsh</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SPICE&quot;</span><span class="p">),</span> <span class="s2">&quot;pck&quot;</span><span class="p">,</span> <span class="s2">&quot;gm_de440.tpc&quot;</span><span class="p">))</span>
+<span class="n">spice</span><span class="o">.</span><span class="n">furnsh</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SPICE&quot;</span><span class="p">),</span> <span class="s2">&quot;pck&quot;</span><span class="p">,</span> <span class="s2">&quot;earth_200101_990825_predict.bpc&quot;</span><span class="p">))</span>
+<span class="n">spice</span><span class="o">.</span><span class="n">furnsh</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;SPICE&quot;</span><span class="p">),</span> <span class="s2">&quot;fk&quot;</span><span class="p">,</span> <span class="s2">&quot;earth_assoc_itrf93.tf&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p>We can now construct the perturbations struct. As input, we need to also provide the initial epoch, i.e. the epoch which corresponds to time <code class="docutils literal notranslate"><span class="pre">t</span> <span class="pre">=</span> <span class="pre">0</span></code> within the Q-law algorithm.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># initialize object for perturbations</span>
+<span class="n">et_ref</span> <span class="o">=</span> <span class="n">spice</span><span class="o">.</span><span class="n">str2et</span><span class="p">(</span><span class="s2">&quot;2028-01-01T00:00:00&quot;</span><span class="p">)</span>   <span class="c1"># seconds past J2000</span>
+<span class="n">perturbations</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">SpicePerturbations</span><span class="p">(</span>
+    <span class="n">et_ref</span><span class="p">,</span> <span class="n">LU</span><span class="p">,</span> <span class="n">TU</span><span class="p">,</span>
+    <span class="n">frame_qlaw</span><span class="o">=</span><span class="s1">&#39;J2000&#39;</span><span class="p">,</span>
+    <span class="n">J2</span><span class="o">=</span><span class="mf">0.00108263</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We can now construct the problem object, making sure we pass <code class="docutils literal notranslate"><span class="pre">perturbations</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># construct problem with perturbations</span>
+<span class="n">prob</span> <span class="o">=</span> <span class="n">pyqlaw</span><span class="o">.</span><span class="n">QLaw</span><span class="p">(</span>
+    <span class="n">integrator</span><span class="o">=</span><span class="s2">&quot;rk4&quot;</span><span class="p">,</span>
+    <span class="n">elements_type</span><span class="o">=</span><span class="s2">&quot;mee_with_a&quot;</span><span class="p">,</span>
+    <span class="n">verbosity</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">print_frequency</span><span class="o">=</span><span class="mi">3000</span><span class="p">,</span>
+    <span class="n">use_sundman</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">perturbations</span> <span class="o">=</span> <span class="n">perturbations</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The remaining is the same as before - we <code class="docutils literal notranslate"><span class="pre">set_problem()</span></code>, then <code class="docutils literal notranslate"><span class="pre">solve()</span></code>!</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prob</span><span class="o">.</span><span class="n">set_problem</span><span class="p">(</span><span class="n">oe0</span><span class="p">,</span> <span class="n">oeT</span><span class="p">,</span> <span class="n">mass0</span><span class="p">,</span> <span class="n">tmax</span><span class="p">,</span> <span class="n">mdot</span><span class="p">,</span> <span class="n">tf_max</span><span class="p">,</span> <span class="n">t_step</span><span class="p">,</span>
+    <span class="n">woe</span> <span class="o">=</span> <span class="n">woe</span><span class="p">)</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+<span class="n">prob</span><span class="o">.</span><span class="n">pretty_results</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ iter   |  time      |  del1       |  del2       |  del3       |  del4       |  del5       |  el6        |
+      0 |  1.039e-02 | -4.2198e-01 |  7.3010e-01 |  3.3846e-04 |  1.7726e-01 |  0.0000e+00 |  2.2019e-01 |
+   3000 |  1.349e+02 | -2.6660e-01 |  5.9675e-01 |  4.8752e-02 |  6.9589e-02 | -1.5096e-02 |  2.6146e+02 |
+   6000 |  3.525e+02 | -5.1307e-03 |  8.0411e-02 |  1.5217e-02 |  1.4554e-03 | -2.1631e-03 |  5.2384e+02 |
+Target elements successfully reached!
+Exit code : 2
+Converge  : True
+Final state:
+  a  : 9.9797e-01 (error: 2.0346e-03)
+  f  : -5.3929e-04 (error: 5.3929e-04)
+  g  : 6.6768e-03 (error: 6.6768e-03)
+  h  : 2.6244e-02 (error: 5.7777e-05)
+  k  : 2.0926e-05 (error: 2.0926e-05)
+Transfer time : 377.58390417496184
+Final mass    : 0.8416531092369212
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plots</span>
+<span class="n">fig1</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_elements_history</span><span class="p">(</span><span class="n">to_keplerian</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">TU</span><span class="o">=</span><span class="n">TU</span><span class="o">/</span><span class="mi">86400</span><span class="p">,</span> <span class="n">time_unit_name</span><span class="o">=</span><span class="s2">&quot;day&quot;</span><span class="p">)</span>
+<span class="n">fig2</span><span class="p">,</span> <span class="n">ax2</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_trajectory_3d</span><span class="p">(</span><span class="n">interpolate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sphere_radius</span><span class="o">=</span><span class="mi">6378</span><span class="o">/</span><span class="n">LU</span><span class="p">)</span>
+<span class="n">fig3</span><span class="p">,</span> <span class="n">ax3</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">plot_controls</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_25_0.png" src="../_images/examples_ex_GTO2GEO_25_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_25_1.png" src="../_images/examples_ex_GTO2GEO_25_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_ex_GTO2GEO_25_2.png" src="../_images/examples_ex_GTO2GEO_25_2.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../api.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="ex_LEO_transfer.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Keplerian Q-law: LEO transfer</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Time-optimal-transfer">Time-optimal transfer</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Introducing-throttles">Introducing throttles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Introducing-Non-Keplerian-perturbations">Introducing Non-Keplerian perturbations</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yuri Shimane
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025 Yuri Shimane.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,572 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Theory behind Q-law &#8212; pyqlaw 0.2.3 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=6808a718"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'theory';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Welcome to pyqlaw’s documentation!" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">pyqlaw 0.2.3 documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Theory behind Q-law</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Basic Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_GTO2GEO.html">MEE-SMA Q-law: GTO to GEO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_LEO_transfer.html">Keplerian Q-law: LEO transfer</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Advanced Examples:</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_eta_functions.html">Providing dynamic efficiency threshold as function</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_thruster_dutycycle.html">Thruster duty cycle</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/ex_gto_manifold.html">GTO to manifold</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/theory.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Theory behind Q-law</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamics">Dynamics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#control-lyapunov-function">Control Lyapunov function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#derivation-of-control-law">Derivation of Control Law</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="theory-behind-q-law">
+<h1>Theory behind Q-law<a class="headerlink" href="#theory-behind-q-law" title="Link to this heading">#</a></h1>
+<p>(Extracted from: Y. Shimane, N. Gollins, and K. Ho, “Orbital Facility Location Problem for Satellite Constellation Servicing Depots,” J. Spacecr. Rockets, vol. 61, no. 3, pp. 808–825, May 2024, doi: [10.2514/1.A35691].(<a class="reference external" href="https://arc.aiaa.org/doi/10.2514/1.A35691">https://arc.aiaa.org/doi/10.2514/1.A35691</a>))</p>
+<section id="background">
+<h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
+<p>Q-law is a Lyapunov-function-based feedback control law first.
+Despite its sub-optimal nature, its ability to rapidly compute multi-revolution low-thrust transfers has made it a popular tool, particularly for large-scale preliminary transfer designs.
+The feedback law consists of determining the optimal thrust direction given the current and target orbital elements. Among the target elements, only the five slow variables are used for the transfer, as the considered problem does not necessitate rendez-vous.</p>
+</section>
+<section id="dynamics">
+<h2>Dynamics<a class="headerlink" href="#dynamics" title="Link to this heading">#</a></h2>
+<p>The dynamics of the satellite may be expressed in terms of orbital elements via Gauss’ variational equations, or the Variation of Parameters (VOP) equations. Let the state be given by $boldsymbol{x} in mathbb{R}^6$, and consider $boldsymbol{B} in mathbb{R}^{6 times 3}$ and $boldsymbol{D} in mathbb{R}^6$, such that</p>
+<div class="math notranslate nohighlight">
+\[\dot{\boldsymbol{x}} = \boldsymbol{B}(\boldsymbol{x})\boldsymbol{F} + \boldsymbol{D} (\boldsymbol{x})\]</div>
+<p>where $boldsymbol{F} in mathbb{R}^3$ is the perturbing force expressed in terms of radial, tangential, and normal components</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{F} = [F_r, F_{\theta}, F_n]^{\mathrm{T}}\]</div>
+<p>The set of elements $boldsymbol{x}$ may be Keplerian elements $[a,e,i,Omega,omega,theta]$ or other alternative sets of elements.
+While the original Q-law has been developed in terms of Keplerian elements, the well-known singularities at $i=0$ and $e=0$ are problematic as these are typical orbital elements in which a spacecraft may be placed. For this reason, the use of alternative element sets, such as the modified equinoctial elements (MEE), given in terms of Keplerian elements as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    &amp; p = a(1-e^2)   \\
+    &amp; f = e \cos{(\Omega + \omega)}  \\
+    &amp; g = e \sin{(\Omega + \omega)}\\
+    &amp; h = \tan{\left(\frac{i}{2}\right)} \cos \Omega  \\
+    &amp; k = \tan{\left(\frac{i}{2}\right)} \sin \Omega  \\
+    &amp; L = \Omega + \omega + \theta
+\end{aligned}\end{split}\]</div>
+<p>is beneficial as the singularity is moved to $i = pi$.
+Furthermore, the use of the MEE with the semi-parameter $p$ replaced by the semimajor axis $a$ has been previously reported to yield convergence benefits cite{Varga2016}, and is employed in this work as well.
+For this set of elements $boldsymbol{x} = [a,f,g,h,k,L]$, the VOP are given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\boldsymbol{B}(\boldsymbol{x}) = \left[\begin{array}{ccc}
+    \dfrac{2 a^{2}}{h} e \sin \theta &amp; \dfrac{2 a^{2}p}{hr} &amp; 0
+    \\[0.1em]
+    \sqrt{\dfrac{p}{\mu}} \sin L &amp; \sqrt{\dfrac{p}{\mu}} \dfrac{1}{w}[(w+1) \cos L+f] &amp; -\sqrt{\dfrac{p}{\mu}} \dfrac{g}{w}[h \sin L-k \cos L]
+    \\[0.1em]
+    -\sqrt{\dfrac{p}{\mu}} \cos L &amp; \sqrt{\dfrac{p}{\mu}} \dfrac{1}{w}[(w+1) \sin L+g] &amp; \sqrt{\dfrac{p}{\mu}} \dfrac{f}{w}[h \sin L-k \cos L]
+    \\[0.1em]
+    0 &amp; 0 &amp; \sqrt{\dfrac{p}{\mu}} \dfrac{s^{2}}{2 w}  \cos L
+    \\[0.1em]
+    0  &amp; 0 &amp; \sqrt{\dfrac{p}{\mu}} \dfrac{s^{2}}{2 w} \sin L
+    \\[0.1em]
+    0 &amp; 0  &amp; \sqrt{\dfrac{p}{\mu}} \dfrac{1}{w} [h \sin L-k \cos L]
+\end{array}\right]\end{split}\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{D}(\boldsymbol{x}) =\left[\begin{array}{llllll}
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; \sqrt{\mu p}\left(\dfrac{w}{p}\right)^{2}
+\end{array}\right]^{\mathrm{T}}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    w &amp;= 1 + f \cos L + g \sin L
+    \\
+    s^2 &amp;= 1 + h^2 + k^2
+\end{aligned}\end{split}\]</div>
+<p>Note that $boldsymbol{F}$ can be due to any form of perturbing acceleration, such as propulsive force, atmospheric drag, third-body attraction, or non-spherical gravity.
+The acceleration due to the propulsive force, which is to be determined to guide the spacecraft to its target orbit, is given by</p>
+<div class="math notranslate nohighlight">
+\[\boldsymbol{F} = \dfrac{T}{m}\left[
+    \cos \alpha \cos \beta , \,
+    \sin \alpha \cos \beta , \,
+    \sin \beta
+\right]^{\mathrm{T}}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> are the in-plane and out-of-plane angles, respectively.</p>
+</section>
+<section id="control-lyapunov-function">
+<h2>Control Lyapunov function<a class="headerlink" href="#control-lyapunov-function" title="Link to this heading">#</a></h2>
+<p>Denoting the osculating element <span class="math notranslate nohighlight">\(\boldsymbol{\alpha} \in [a,f,g,h,k]$\)</span> and the targeted elements as <span class="math notranslate nohighlight">\(\text{\boldsymbol{\alpha}}_T\)</span>, the Lyapunov function is given by</p>
+<div class="math notranslate nohighlight">
+\[Q =
+\left(1+W_{p} P\right) \sum_{\text{\boldsymbol{\alpha}}}
+S_{\text{\boldsymbol{\alpha}}} W_{\text{\boldsymbol{\alpha}}}
+\left(
+    \dfrac{\text{\boldsymbol{\alpha}} - \text{\boldsymbol{\alpha}}_T}{\dot{\text{\boldsymbol{\alpha}}}_{x x}}
+\right)^{2}
+\, ,
+\quad \text{\boldsymbol{\alpha}} = a, f, g, h, k\]</div>
+<p>In essence, <span class="math notranslate nohighlight">\(Q\)</span> penalizes the difference between <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}\)</span> and <span class="math notranslate nohighlight">\(\boldsymbol{\alpha}_{T}\)</span> through the subtraction term in the summation.
+<span class="math notranslate nohighlight">\(S_{\boldsymbol{\alpha}}\)</span> is a scaling factor given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}S_{\boldsymbol{\alpha}}
+=
+\begin{cases}
+    \left[1+\left(\dfrac{\left|a-a_{T}\right|}{\sigma a_{T}}\right)^{\nu}\right]^{1 / \zeta},
+    &amp; \boldsymbol{\alpha} = a
+    \\
+    1, &amp; \text{ otherwise }
+\end{cases}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\sigma\)</span>, <span class="math notranslate nohighlight">\(\nu\)</span> and <span class="math notranslate nohighlight">\(\zeta\)</span> are scalar coefficients, which prevents non-convergence of $a to infty$. This is necessary as when <span class="math notranslate nohighlight">\(a \to \infty\)</span>, the <span class="math notranslate nohighlight">\(\dot{\boldsymbol{\alpha}}_{x x}\)</span> terms also tend to <span class="math notranslate nohighlight">\(\infty\)</span> and thus <span class="math notranslate nohighlight">\(Q\)</span> is reduced, however, this is not a physically useful solution. <span class="math notranslate nohighlight">\(W_{\boldsymbol{\alpha}}\)</span> are scalar weights that may be assigned to different elements, if one is to be favored for targeting over another. <span class="math notranslate nohighlight">\(P\)</span> is a penalty term on the periapsis radius, given by</p>
+<div class="math notranslate nohighlight">
+\[P =\exp \left[k_{r_p}\left(1-\frac{r_{p}}{r_{p \min }}\right)\right]\]</div>
+<p>where <span class="math notranslate nohighlight">\(r_p\)</span> is the current orbit’s periapsis radius given by</p>
+<div class="math notranslate nohighlight">
+\[r_p = a (1 - e)\]</div>
+<p>and <span class="math notranslate nohighlight">\(r_{p \min }\)</span> is a user-defined threshold. Here, <span class="math notranslate nohighlight">\(k_{r_p}\)</span> is also a pre-defined constant on this penalty term and represents the gradient of this exponential barrier function near <span class="math notranslate nohighlight">\(r_{p \min }\)</span>. <span class="math notranslate nohighlight">\(W_p\)</span> is a scalar weight to be placed on the periapsis penalty term.
+The <span class="math notranslate nohighlight">\(\dot{\boldsymbol{\alpha}}_{x x}\)</span> terms represent the maximum rates of change of a given orbital element with respect to the thrust direction and true anomaly along the osculating orbit and are given in the Appendix.</p>
+</section>
+<section id="derivation-of-control-law">
+<h2>Derivation of Control Law<a class="headerlink" href="#derivation-of-control-law" title="Link to this heading">#</a></h2>
+<p>Through the application of Lyapunov control theory, the Q-law strategy consists of choosing the control angles <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> such that the time-rate of change of $Q$ is minimized at each time-step</p>
+<div class="math notranslate nohighlight">
+\[\min_{\alpha, \beta} \dot{Q}\]</div>
+<p>where $dot{Q}$ can be expressed using the chain rule as</p>
+<div class="math notranslate nohighlight">
+\[\begin{aligned}
+    \dot{Q} &amp;= \sum_{\boldsymbol{\alpha} } \dfrac{\partial Q}{\partial \boldsymbol{\alpha}} \dot{\boldsymbol{\alpha}}
+    % first term
+    = D_1 \cos \beta \cos \alpha
+    % second term
+    + D_2 \cos \beta \sin \alpha
+    % third term
+    + D_3 \sin \beta
+    % elements
+    \,, \quad \boldsymbol{\alpha}=a, f, g, h, k
+\end{aligned}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    D_1 &amp;= \sum_{\boldsymbol{\alpha}} \dfrac{\partial Q}{\partial \boldsymbol{\alpha}} \dfrac{\partial \dot{\boldsymbol{\alpha}}}{\partial F_{\theta}}
+    \\
+    D_2 &amp;= \sum_{\boldsymbol{\alpha}} \dfrac{\partial Q}{\partial \boldsymbol{\alpha}} \dfrac{\partial \dot{\boldsymbol{\alpha}}}{\partial F_{r}}
+    \\
+    D_3 &amp;= \sum_{\boldsymbol{\alpha}} \dfrac{\partial Q}{\partial \boldsymbol{\alpha}} \dfrac{\partial \dot{\boldsymbol{\alpha}}}{\partial F_{n}}
+\end{aligned}\end{split}\]</div>
+<p>The choice of $alpha$ and $beta$ based on condition eqref{eq:minQ_def}, given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+    \alpha^* &amp;= \arctan(-D_2, -D_1)
+    \\
+    \beta^* &amp;= \arctan\left( \dfrac{-D_3}{\sqrt{D_1^2 + D_2^2}} \right)
+\end{aligned}\end{split}\]</div>
+<p>ensures the fastest possible decrease of $Q$, thereby providing the best immediate action for the spacecraft to take to arrive at $boldsymbol{alpha}_T$.
+Note that while $dot{boldsymbol{alpha}}$ consists simply of the first 5 rows of the VOP given in expression eqref{eq:vop_Amatrix}, the expression for $frac{partial Q}{partial boldsymbol{alpha}}$ is cumbersome to derive analytically. Instead, a symbolic toolbox is used to obtain these expressions.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Welcome to pyqlaw’s documentation!</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="api.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#background">Background</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamics">Dynamics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#control-lyapunov-function">Control Lyapunov function</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#derivation-of-control-law">Derivation of Control Law</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Yuri Shimane
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025 Yuri Shimane.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
